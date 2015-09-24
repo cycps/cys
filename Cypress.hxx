@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sundials/sundials_types.h>
+#include <nvector/nvector_serial.h>
 
 #include <thread>
 #include <iostream>
@@ -95,7 +96,14 @@ struct SingleDirect
   Sim *sim;
   SingleDirect(Sim &sim);
 
-  int run();
+  N_Vector yv, dyv, rv;
+
+  void initState();
+  void initIda();
+  //writeDataHeader();
+  //compute();
+
+  int run(realtype begin, realtype end, realtype step);
 };
 
 struct Sim
@@ -126,7 +134,7 @@ struct Sim
   int run(realtype begin, realtype end, realtype step)
   {
     Solver solver{*this};
-    return solver.run();
+    return solver.run(begin, end, step);
   }
 
   private:

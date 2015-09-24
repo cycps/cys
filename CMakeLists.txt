@@ -12,4 +12,4 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 
 add_library(cys Cypress.cxx Actuator.cxx Sensor.cxx)
 add_executable(RotorSystem RotorSystem.cxx)
-target_link_libraries(RotorSystem cys pthread)
+target_link_libraries(RotorSystem cys pthread sundials_nvecserial sundials_ida)

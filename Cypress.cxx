@@ -205,11 +205,32 @@ bool SensorCmp::operator()(const Sensor *a, const Sensor *b)
   return a->nxt > b->nxt;
 }
 
+// SingleDirect ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 SingleDirect::SingleDirect(Sim &sim)
   : sim{&sim}
 {  }
 
-int SingleDirect::run()
+int SingleDirect::run(realtype begin, realtype end, realtype step)
 {
+  initState();
   return 0;
+}
+
+void SingleDirect::initState()
+{
+  yv = N_VNew_Serial(sim->yx); 
+  dyv = N_VNew_Serial(sim->yx);
+  rv = N_VNew_Serial(sim->rx);
+
+  sim->y = NV_DATA_S(yv); 
+  sim->dy = NV_DATA_S(dyv);
+  sim->r = NV_DATA_S(rv);
+
+  cout << "[SingleDirect] init state ok" << endl;
+}
+
+void SingleDirect::initIda()
+{
+  //TODO: you are here
 }
