@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <fstream>
 
 #include "Cypress.hxx"
 #include "Actuator.hxx"
@@ -14,6 +15,20 @@ using std::ostream;
 using std::runtime_error;
 using std::lock_guard;
 using std::mutex;
+using std::chrono::high_resolution_clock;
+using std::chrono::duration_cast;
+using std::chrono::microseconds;
+
+Object::Object(unsigned long n): idx{Sim::get().nextResidIndex(n)} 
+{
+  Sim::get().objects.push_back(this);
+}
+
+void Sim::step()
+{
+  sensorManager.step(t);
+  for(Object *o : objects) o->Resid();
+}
 
 ActuationServer::ActuationServer(Sim &sim) 
   : sim{&sim} 
@@ -42,10 +57,10 @@ void ActuationServer::initComms()
   addr.sin_port = htons(port);
 
   auto *saddr = reinterpret_cast<const struct sockaddr*>(&addr);
-  int err = bind(sockfd, saddr, sizeof(saddr));
+  int err = bind(sockfd, saddr, sizeof(addr));
   if(err < 0)
   {
-    cerr << "[ActuationServer] bind() failed" << endl;
+    cerr << "[ActuationServer] bind() failed " << err << endl;
     exit(1);
   }
 
@@ -89,58 +104,6 @@ void ActuationServer::listen()
   }
 }
 
-//CPacket +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-CPacket CPacket::fromBytes(char *buf)
-{
-  unsigned long id_tag, sec, usec;
-  double value;
-
-  char head[5];
-  strncpy(head, buf, 4);
-  head[4] = 0;
-
-  if(strncmp("cypr", head, 4) != 0)
-  {
-    throw runtime_error("Bad packet header `" + string(head) + "`");
-  }
-
-  size_t at = 4;
-  id_tag = be64toh(*reinterpret_cast<unsigned long*>(buf+at));
-  at += sizeof(unsigned long);
-  sec = be64toh(*reinterpret_cast<unsigned long*>(buf+at));
-  at += sizeof(unsigned long);
-  usec = be64toh(*reinterpret_cast<unsigned long*>(buf+at));
-  at += sizeof(unsigned long);
-  value = *reinterpret_cast<double*>(buf+at);
-
-  return CPacket{id_tag, sec, usec, value};
-}
-
-void CPacket::toBytes(char *bytes)
-{
-  strncpy(bytes, hdr.data(), 4);
-
-  size_t at = 4;
-  *reinterpret_cast<unsigned long*>(bytes+at) = htobe64(id_tag);
-  at += sizeof(unsigned long);
-  *reinterpret_cast<unsigned long*>(bytes+at) = htobe64(sec);
-  at += sizeof(unsigned long);
-  *reinterpret_cast<unsigned long*>(bytes+at) = htobe64(usec);
-  at += sizeof(unsigned long);
-  *reinterpret_cast<double*>(bytes+at) = value;
-
-}
-
-ostream& cys::operator<<(ostream &o, const CPacket &c)
-{
-  o << "{" 
-    << c.id_tag << ", " 
-    << c.sec << ", " 
-    << c.usec << ", " 
-    << c.value 
-    << "}";
-  return o;
-}
 
 // SensorManager +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 SensorManager::SensorManager(Sim &sim)
@@ -165,6 +128,7 @@ void SensorManager::step(double t)
   this->t = t; 
 
   cout << "[" << sim->t << "]" << "[sm] t=" << t << endl;
+  //if there are no sensors the line below results in sadness
   cout << "[" << sim->t << "]" << "[sm] q=" << Q.top()->nxt << endl;
 
   
@@ -213,8 +177,72 @@ SingleDirect::SingleDirect(Sim &sim)
 
 int SingleDirect::run(realtype begin, realtype end, realtype step)
 {
+  cout << "running simulation" << endl
+       << "N=" << sim->yx <<endl
+       << endl;
   initState();
+  initIda(begin);
+
+  realtype tret{0};
+ 
+  size_t result_size{static_cast<size_t>(std::ceil((end-begin)/step))};
+
+  realtype *results = new realtype[result_size*sim->yx];
+  size_t period = step / 1.0e-6;
+
+  dumpState(cout);
+
+  size_t i=0;
+  for(realtype t=begin+step; t<end; t += step, ++i)
+  {
+    sim->t = t;
+    auto t0 = high_resolution_clock::now();
+    int retval = IDASolve(mem, t, &tret, yv, dyv, IDA_NORMAL);
+    if(retval != IDA_SUCCESS)
+    {
+      cerr << "[" << t << "]" << "IDASolve failed: " << retval << endl;
+      exit(1);
+    }
+    //sim->t = tret;
+    sim->step();
+    memcpy(&results[i*sim->yx], sim->y, sizeof(realtype)*sim->yx);
+    auto t1 = high_resolution_clock::now();
+    size_t elapsed = duration_cast<microseconds>(t1 - t0).count();
+    cout << "~~~~~~~~~~~~~~~~t=" << t << endl;
+
+    if(elapsed < period)
+      usleep(period - elapsed);
+  }
+
+  cout << "Simulation completed, saving results" << endl;
+  std::ofstream r_out{"results.csv", std::ios_base::out};
+  for(int j=0; j<i; ++j)
+  {
+    for(int k=0; k<sim->yx; ++k)
+    {
+      r_out << results[i*sim->yx + k] << ",";
+    }
+    r_out << endl;
+  }
+
   return 0;
+}
+
+void SingleDirect::dumpState(ostream &out)
+{
+  out << "y" << endl;
+  for(int k=0; k<sim->yx; ++k)
+  {
+    out << sim->y[k] << ",";
+  }
+  out << endl;
+  
+  out << "dy" << endl;
+  for(int k=0; k<sim->yx; ++k)
+  {
+    out << sim->dy[k] << ",";
+  }
+  out << endl;
 }
 
 void SingleDirect::initState()
@@ -227,10 +255,68 @@ void SingleDirect::initState()
   sim->dy = NV_DATA_S(dyv);
   sim->r = NV_DATA_S(rv);
 
+  for(int i=0; i<sim->yx; ++i)
+  {
+    sim->y[i] = sim->dy[i] = 0;
+  }
+
   cout << "[SingleDirect] init state ok" << endl;
 }
 
-void SingleDirect::initIda()
+int F_Single(realtype t, N_Vector y, N_Vector dy, N_Vector r, void* /*udata*/)
 {
-  //TODO: you are here
+  Sim::get().y = NV_DATA_S(y);
+  Sim::get().dy = NV_DATA_S(dy);
+  Sim::get().r = NV_DATA_S(r);
+  Sim::get().step();
+
+  return 0;
 }
+
+void SingleDirect::initIda(realtype begin)
+{
+  mem = IDACreate();
+  if(mem == nullptr)
+  {
+    cerr << "IDACreate() failed" << endl;
+    exit(1);
+  }
+
+  int retval = IDAInit(mem, F_Single, begin, yv, dyv);
+  if(retval != IDA_SUCCESS)
+  {
+    cerr << "IDAInit() failed" << endl;
+    exit(1);
+  }
+
+  retval = IDASetUserData(mem, this);
+  if(retval != IDA_SUCCESS)
+  {
+    cerr << "IDASetUserData() failed" << endl;
+    exit(1);
+  }
+
+  retval = IDASStolerances(mem, rtl, atl);
+  if(retval != IDA_SUCCESS)
+  {
+    cerr << "IDASStolerances() failed" << endl;
+    exit(1);
+  }
+
+  if(sim->rx != sim->yx)
+  {
+    cerr << "Number of equations must equal number of variables" << endl;
+    cerr << "NEQ=" << sim->rx << "NV=" << sim->yx << endl;
+    exit(1);
+  }
+
+  retval = IDADense(mem, sim->rx);
+  if(retval != IDA_SUCCESS)
+  {
+    cerr << "IDADesnse() failed" << endl;
+    exit(1);
+  }
+
+  cout << "IDAInit ok" << endl;
+}
+

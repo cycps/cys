@@ -6,7 +6,8 @@ using std::string;
 using std::runtime_error;
   
 Sensor::Sensor(Var v, unsigned long rate, unsigned long id_tag, string target) 
-  : v{v}, rate{rate}, id_tag{id_tag}, nxt{static_cast<realtype>(rate)}, target{target}
+  : v{v}, rate{rate}, id_tag{id_tag}, nxt{static_cast<realtype>(rate)}, 
+    target{target}
 {
   bzero(&out_addr, sizeof(out_addr));
   out_addr.sin_family = AF_INET;
@@ -16,4 +17,5 @@ Sensor::Sensor(Var v, unsigned long rate, unsigned long id_tag, string target)
   {
     throw runtime_error("invalid sensor target address");
   }
+  Sim::get().sensorManager.add(*this);
 }

@@ -14,6 +14,8 @@
 #include <arpa/inet.h>
 #include <sundials/sundials_types.h>
 #include <nvector/nvector_serial.h>
+#include <ida/ida.h>
+#include <ida/ida_dense.h>
 
 #include <thread>
 #include <iostream>
@@ -21,31 +23,16 @@
 #include <string>
 #include <unordered_map>
 #include <queue>
+#include <chrono>
+
+#include "Protocol.hxx"
 
 namespace cys {
 
 struct Sim;
 struct Actuator;
 struct Sensor;
-
-struct CPacket
-{
-  std::array<char,4> hdr{'c', 'y', 'p', 'r'};
-  unsigned long id_tag, sec, usec;
-  double value;
-
-  CPacket() = default;
-  CPacket(unsigned long id_tag,
-          unsigned long sec, unsigned long usec,
-          double value)
-    : id_tag{id_tag}, sec{sec}, usec{usec}, value{value}
-  {}
-
-  static CPacket fromBytes(char *buf);
-  void toBytes(char *buf);
-};
-
-std::ostream& operator<<(std::ostream &o, const CPacket &c);
+struct Object;
 
 struct ActuationServer
 {
@@ -98,10 +85,15 @@ struct SingleDirect
 
   N_Vector yv, dyv, rv;
 
+  realtype rtl = 1e-3, atl = 1e-3;
+
+  void *mem{nullptr};
+
   void initState();
-  void initIda();
-  //writeDataHeader();
-  //compute();
+  void initIda(realtype begin);
+  //void writeDataHeader();
+  //void compute();
+  void dumpState(std::ostream &out);
 
   int run(realtype begin, realtype end, realtype step);
 };
@@ -113,6 +105,8 @@ struct Sim
   
   ActuationServer actuationServer;
   SensorManager sensorManager;
+
+  std::vector<Object*> objects;
 
   static Sim& get()
   {
@@ -137,6 +131,8 @@ struct Sim
     return solver.run(begin, end, step);
   }
 
+  void step();
+
   private:
     Sim()
       : actuationServer{*this},
@@ -147,11 +143,11 @@ struct Sim
 
 struct Object 
 {
-  explicit Object(unsigned long n): idx{Sim::get().nextResidIndex(n)} {}
+  explicit Object(unsigned long n);
 
   virtual void Resid() = 0;
-  realtype& r(unsigned int offset)       { return Sim::get().r[idx + offset]; }
-  realtype  r(unsigned int offset) const { return Sim::get().r[idx + offset]; }
+  realtype& r(unsigned int offset)        { return Sim::get().r[idx + offset]; }
+  realtype  cr(unsigned int offset) const { return Sim::get().r[idx + offset]; }
 
   private:
     unsigned long idx;

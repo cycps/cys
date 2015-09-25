@@ -15,8 +15,14 @@ struct Rotor : public Object
 
   void Resid() override
   {
-    r(0) = d(w) - tau + H*std::pow(w, 2);
+    std::cout << "w=" << (realtype)w << std::endl;
+    std::cout << "tau=" << (realtype)tau << std::endl;
+    std::cout << "theta=" << (realtype)theta << std::endl;
+    r(0) = d(w) - (tau - H*std::pow(w, 2.0));
     r(1) = d(theta) - w;
+    std::cout << "r(0)=" << r(0) << std::endl;
+    std::cout << "r(1)=" << r(1) << std::endl;
+    std::cout << "r(2)=" << r(2) << std::endl;
   }
 };
 
