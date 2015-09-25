@@ -18,6 +18,9 @@ struct Rotor : public Object
     std::cout << "w=" << (realtype)w << std::endl;
     std::cout << "tau=" << (realtype)tau << std::endl;
     std::cout << "theta=" << (realtype)theta << std::endl;
+    std::cout << "w'=" << (realtype)d(w) << std::endl;
+    std::cout << "tau'=" << (realtype)d(tau) << std::endl;
+    std::cout << "theta'=" << (realtype)d(theta) << std::endl;
     r(0) = d(w) - (tau - H*std::pow(w, 2.0));
     r(1) = d(theta) - w;
     std::cout << "r(0)=" << r(0) << std::endl;
