@@ -95,7 +95,7 @@ double UseLatestArrival(const std::vector<CVal> &, double last);
 
 struct Controller
 {
-  size_t period{100}; //100 millisecond default period
+  size_t period{4}; //4 millisecond default period
   std::string name;
   size_t input_size{0};
 
@@ -134,7 +134,7 @@ struct Controller
   std::ofstream k_lg, io_lg;
 
   //Comms stuff ---------------------------------------------------------------
-  unsigned short port{4747};
+  unsigned short port{7474};
   int sockfd;
   struct sockaddr_in servaddr, cliaddr, tgtaddr;
   std::atomic<bool> listener_bound{false};

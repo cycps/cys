@@ -80,6 +80,7 @@ void ActuationServer::listen()
   for(;;)
   {
     int err = recvfrom(sockfd, msg, sz, 0, caddr, &len);
+    cout << "[ActuationServer] !!!" << endl;
     if(err < 0)
     {
       cerr << "[ActuationServer] recvfrom() failed: " << err << endl;
@@ -157,10 +158,10 @@ void SensorManager::tx(Sensor &s)
   sendto(sockfd, buf, sz, 0, addr, sizeof(s.out_addr));
 
   char sadr[128];
-  inet_ntop(AF_INET, &(s.out_addr.sin_port), sadr, 128);
+  inet_ntop(AF_INET, &(s.out_addr.sin_addr), sadr, 128);
 
-  cout << "[" << sim->t  << "]"
-    << sadr << ":" << s.out_addr.sin_port << "  " <<  v
+  cout << "################>>>[" << sim->t  << "] "
+    << sadr << ":" << ntohs(s.out_addr.sin_port) << "  " <<  v
     << endl;
 }
 

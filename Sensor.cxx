@@ -13,7 +13,7 @@ Sensor::Sensor(Var v, unsigned long rate, unsigned long id_tag, string target)
   out_addr.sin_family = AF_INET;
   out_addr.sin_port = htons(7474);
   int err = inet_pton(AF_INET, target.c_str(), &out_addr.sin_addr);
-  if(err <0)
+  if(err != 1)
   {
     throw runtime_error("invalid sensor target address");
   }

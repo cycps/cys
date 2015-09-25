@@ -4,4 +4,4 @@ inputs:
 outputs:
   tau:
     tag: 1001
-    address: localhost
+    address: 127.0.0.1

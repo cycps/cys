@@ -159,7 +159,7 @@ void Controller::setDestination(string addr)
 {
   bzero(&tgtaddr, sizeof(tgtaddr));
   tgtaddr.sin_family = AF_INET;
-  tgtaddr.sin_port = htons(7474);
+  tgtaddr.sin_port = htons(4747);
   int err = inet_pton(AF_INET, addr.c_str(), &tgtaddr.sin_addr);
   if(err < 0)
   {

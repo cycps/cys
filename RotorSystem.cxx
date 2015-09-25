@@ -8,8 +8,8 @@ int main()
 {
   mech::Rotor r{47};
   Actuator a{r.tau, 10, 0.5, 1001};
-  Sensor s{r.w, 30, 1001, "localhost"};
+  Sensor s{r.w, 120, 1001, "127.0.0.1"};
 
-  return Sim::get().run(0, 10, 1e-3);
+  return Sim::get().run(0, 2, 1e-3);
 }
 
