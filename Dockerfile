@@ -8,3 +8,5 @@ RUN apt-get update && apt-get install -y \
   rsync \
   curl \
   iproute2
+
+CMD service ssh start && /bin/bash
