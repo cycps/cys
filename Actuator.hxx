@@ -17,10 +17,11 @@ struct Actuator : public Object
   realtype s_limit, d_limit, p{0}, dp{0};
   unsigned long id_tag;
 
-  Actuator(Var v, realtype s_limit, realtype d_limit, unsigned long id_tag);
+  Actuator(std::string name, Var v, realtype s_limit, realtype d_limit, 
+      unsigned long id_tag);
 
   void actuate(realtype x);
-  void Resid() override;
+  void resid() override;
   void clamp(realtype &x);
 
 };

@@ -4,9 +4,12 @@
 #include <cmath>
 
 using namespace cys;
+using std::string;
+using std::vector;
 
-Actuator::Actuator(Var v, realtype s_limit, realtype d_limit, unsigned long id_tag) 
-  : Object{1}, v{v}, s_limit{s_limit}, d_limit{d_limit}, id_tag{id_tag}
+Actuator::Actuator(string name, Var v, realtype s_limit, realtype d_limit, 
+    unsigned long id_tag) 
+  : Object{1, name}, v{v}, s_limit{s_limit}, d_limit{d_limit}, id_tag{id_tag}
 {
   Sim::get().actuationServer.enlist(*this);
 }
@@ -23,7 +26,8 @@ void Actuator::clamp(realtype &x)
   if(std::abs(x-p) > d_limit) x = p + d_limit * (x)/std::abs(x);
 }
 
-void Actuator::Resid()
+void Actuator::resid()
 {
   r(0) = p - d(v);
 }
+

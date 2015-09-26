@@ -4,6 +4,9 @@
 #include <cmath>
 #include "Cypress.hxx"
 
+using std::vector;
+using std::string;
+
 namespace cys { namespace mech {
 
 struct Rotor : public Object
@@ -11,22 +14,19 @@ struct Rotor : public Object
   Var w, tau, theta;
   realtype H;
 
-  Rotor(realtype H): Object(2), H{H} {}
-
-  void Resid() override
+  Rotor(string name, realtype H): Object(2, name), H{H} 
   {
-    std::cout << "w=" << (realtype)w << std::endl;
-    std::cout << "tau=" << (realtype)tau << std::endl;
-    std::cout << "theta=" << (realtype)theta << std::endl;
-    std::cout << "w'=" << (realtype)d(w) << std::endl;
-    std::cout << "tau'=" << (realtype)d(tau) << std::endl;
-    std::cout << "theta'=" << (realtype)d(theta) << std::endl;
+    label(w,"w");
+    label(tau,"tau");
+    label(theta,"theta");
+  }
+
+  void resid() override
+  {
     r(0) = d(w) - (tau - H*std::pow(w, 2.0));
     r(1) = d(theta) - w;
-    std::cout << "r(0)=" << r(0) << std::endl;
-    std::cout << "r(1)=" << r(1) << std::endl;
-    std::cout << "r(2)=" << r(2) << std::endl;
   }
+  
 };
 
 }}

@@ -11,9 +11,10 @@ struct Sensor
   unsigned long rate, id_tag;
   realtype nxt;
   sockaddr_in out_addr;
-  std::string target;
+  std::string target, name;
 
-  Sensor(Var v, unsigned long rate, unsigned long id_tag, std::string target);
+  Sensor(std::string name, Var v, unsigned long rate, unsigned long id_tag, 
+      std::string target);
 };
 
 }

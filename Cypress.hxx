@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <queue>
 #include <chrono>
+#include <fstream>
 
 #include "Protocol.hxx"
 
@@ -33,15 +34,17 @@ struct Sim;
 struct Actuator;
 struct Sensor;
 struct Object;
+struct Var;
 
 struct ActuationServer
 {
-  explicit ActuationServer(Sim &sim);
+  explicit ActuationServer();
 
   void enlist(Actuator &a);
 
   private:
-    Sim *sim;
+    std::ofstream 
+      lg{"actuation_server.log", std::ios_base::out | std::ios_base::app};
     std::thread *listen_thread{nullptr};
     int sockfd;
     sockaddr_in addr;
@@ -82,6 +85,8 @@ struct SingleDirect
 {
   Sim *sim;
   SingleDirect(Sim &sim);
+  std::ofstream 
+    lg{"single_direct.log", std::ios_base::out | std::ios_base::app};
 
   N_Vector yv, dyv, rv;
 
@@ -102,6 +107,7 @@ struct Sim
 {
   realtype *y{nullptr}, *dy{nullptr}, *r{nullptr}, t;
   unsigned long yx{0}, rx{0};
+  std::vector<std::string> labels;
   
   ActuationServer actuationServer;
   SensorManager sensorManager;
@@ -132,10 +138,12 @@ struct Sim
   }
 
   void step();
+  std::string header();
+  std::string datastring();
 
   private:
     Sim()
-      : actuationServer{*this},
+      : actuationServer{},
         sensorManager{*this}
     {  }
 
@@ -143,11 +151,13 @@ struct Sim
 
 struct Object 
 {
-  explicit Object(unsigned long n);
+  explicit Object(unsigned long n, std::string name);
 
-  virtual void Resid() = 0;
+  virtual void resid() = 0;
   realtype& r(unsigned int offset)        { return Sim::get().r[idx + offset]; }
   realtype  cr(unsigned int offset) const { return Sim::get().r[idx + offset]; }
+  std::string name;
+  void label(Var &v, std::string);
 
   private:
     unsigned long idx;
@@ -164,6 +174,7 @@ struct Var
   Var()
   {
     idx = Sim::get().nextVarIndex();
+    Sim::get().labels.push_back("");
   }
 
   Var(const Var &v): idx{v.idx} {}
@@ -172,6 +183,26 @@ struct Var
 
 inline realtype& d(Var &v) { return  v.d(); }
 inline realtype d(const Var &v)  { return  v.d(); }
+
+inline
+std::string log(std::string msg)
+{
+  std::time_t t = std::time(nullptr);
+  char ts[128];
+  std::strftime(ts, sizeof(ts), "%T", std::localtime(&t));
+  
+  return std::string("[") + std::string(ts) + "] " + msg;
+}
+
+inline
+std::string ts()
+{
+  std::time_t t = std::time(nullptr);
+  char ts[128];
+  std::strftime(ts, sizeof(ts), "%F %T", std::localtime(&t));
+  
+  return std::string("[") + std::string(ts) + std::string("] ");
+}
 
 
 }

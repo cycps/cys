@@ -31,25 +31,6 @@
 
 namespace cys {
 
-inline
-std::string log(std::string msg)
-{
-  std::time_t t = std::time(nullptr);
-  char ts[128];
-  std::strftime(ts, sizeof(ts), "%F %T", std::localtime(&t));
-  
-  return std::string("[") + std::string(ts) + "] " + msg;
-}
-
-inline
-std::string ts()
-{
-  std::time_t t = std::time(nullptr);
-  char ts[128];
-  std::strftime(ts, sizeof(ts), "%F %T", std::localtime(&t));
-  
-  return std::string("[") + std::string(ts) + std::string("] ");
-}
 
 struct CVal
 {
@@ -59,17 +40,6 @@ struct CVal
   CVal() = default;
   CVal(unsigned long sec, unsigned long usec, double v) 
     : sec{sec}, usec{usec}, v{v} {};
-};
-
-struct InputSource
-{
-  std::string variable{}, source{};
- 
-  InputSource() = default;
-  InputSource(std::string variable, std::string source) 
-    : variable{variable}, source{source} {}
-
-  in6_addr address();
 };
 
 struct ControlBuffer
@@ -106,7 +76,7 @@ struct Controller
 
   //maps a local variable index to a resolver
   std::vector<FrameVarResolver> resolvers;
-  std::vector<InputSource> sources{};
+  //std::vector<InputSource> sources{};
   
   ControlBuffer a_, b_;
   ControlBuffer *a{&a_}, *b{&b_};

@@ -30,46 +30,10 @@ using namespace std::chrono;
 using std::vector;
 
 
-// InputSource -----------------------------------------------------------------
-in6_addr InputSource::address()
-{
-  in6_addr va, sa;
-
-  addrinfo hints, *vai{nullptr}, *sai{nullptr};
-  bzero(&hints, sizeof(addrinfo));
-  hints.ai_family = AF_INET6;
-  hints.ai_socktype = SOCK_DGRAM;
-  hints.ai_protocol = IPPROTO_UDP;
-
-  int ret = getaddrinfo(variable.c_str(), nullptr, &hints, &vai);
-
-  if(ret != 0) {
-    std::cerr << "failed to get ipv6 udp address for '" << variable << "'" 
-              << std::endl;
-    exit(1);
-  }
-  
-  va = ((sockaddr_in6*)(vai->ai_addr))->sin6_addr;
-  char va_s[INET6_ADDRSTRLEN];
-  bzero(va_s, INET6_ADDRSTRLEN);
-  inet_ntop(AF_INET6, &va, va_s, INET6_ADDRSTRLEN);
-
-  std::cout << "[" << variable << "] --> [" << va_s << std::endl;
-
-
-  //the magic of dns takes place
-
-  return va;
-}
-
 // Controller ------------------------------------------------------------------
 void Controller::listen()
 {
 
-  for(auto &is : sources) {
-    in6_addr addr = is.address();
-  }
-  
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   int opt=1;
   int err = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
