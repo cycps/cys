@@ -3,6 +3,7 @@
 
 #if defined(__linux__)
 #include <endian.h>
+#include <unistd.h>
 #elif defined(__APPLE__)
 #include <libkern/OSByteOrder.h>
 #define htobe64(x) OSSwapHostToBigInt64(x)

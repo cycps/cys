@@ -11,13 +11,16 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 -fcolor-diagnostics -Wno-missing-braces")
 
 include_directories(/usr/local/include)
+include_directories(common)
+include_directories(lib)
+include_directories(sim)
+include_directories(control)
 link_directories(/usr/local/lib)
 
-add_library(cys Cypress.cxx Actuator.cxx Sensor.cxx Protocol.cxx)
-add_executable(RotorSystem RotorSystem.cxx)
-target_link_libraries(RotorSystem cys pthread sundials_nvecserial sundials_ida)
 
-add_library(cyct Controller.cxx Protocol.cxx)
 
-add_executable(RotorSpeedController RotorSpeedController.cxx)
-target_link_libraries(RotorSpeedController cyct pthread yaml-cpp)
+add_subdirectory(common)
+add_subdirectory(sim)
+add_subdirectory(lib/example)
+add_subdirectory(control)
+add_subdirectory(control/example)
