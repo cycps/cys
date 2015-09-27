@@ -1,0 +1,7 @@
+inputs:
+  w:
+    tag: 1003
+outputs:
+  tau:
+    tag: 1003
+    address: sim

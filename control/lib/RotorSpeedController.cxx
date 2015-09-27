@@ -18,7 +18,8 @@ struct RotorSpeedController : public Controller
   unsigned long w_tag, tau_tag;
   string tau_addr;
 
-  RotorSpeedController(string config_file) : Controller("rsc"), config_file{config_file}
+  RotorSpeedController(string config_file) 
+    : Controller("rsc"), config_file{config_file}
   {
     readConfig();
     std::cout << "w.tag:  " << w_tag << std::endl;

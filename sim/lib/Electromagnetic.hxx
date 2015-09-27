@@ -3,6 +3,10 @@
 
 namespace cys { namespace em {
 
+struct MagneticCore : public Object
+{
+
+};
 
 }}
 
