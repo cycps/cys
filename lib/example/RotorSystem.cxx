@@ -22,9 +22,9 @@ struct RotorHouse
 
 int main()
 {
-  RotorHouse a{"a", 1001, "127.0.0.1"};
-  RotorHouse b{"b", 1002, "127.0.0.5"};
-  RotorHouse c{"c", 1003, "127.0.0.7"};
+  RotorHouse a{"a", 1001, "rca"};
+  RotorHouse b{"b", 1002, "rcb"};
+  RotorHouse c{"c", 1003, "rcc"};
 
   return Sim::get().run(0, 2, 1e-3);
 }

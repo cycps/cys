@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
   ssh \
   rsync \
   curl \
-  iproute2
+  iproute2 \
+  iputils-ping
 
 CMD service ssh start && /bin/bash

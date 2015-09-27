@@ -124,11 +124,26 @@ void Controller::setDestination(string addr)
   bzero(&tgtaddr, sizeof(tgtaddr));
   tgtaddr.sin_family = AF_INET;
   tgtaddr.sin_port = htons(4747);
-  int err = inet_pton(AF_INET, addr.c_str(), &tgtaddr.sin_addr);
-  if(err < 0)
+  //int err = inet_pton(AF_INET, addr.c_str(), &tgtaddr.sin_addr);
+  addrinfo *ai{nullptr};
+  int err = getaddrinfo(addr.c_str(), nullptr, nullptr, &ai);
+  if(err != 0)
   {
-    io_lg << ts() << "Bad destination address: " << addr << endl;
+    const char *serr = gai_strerror(err);
+    io_lg << ts() << "Bad destination address: " << addr << 
+        "invalid target target address " <<
+        "'" << addr << "': " <<
+        "(" << err << ") " << string(serr);
     throw runtime_error{"io failure"};
+  }
+  if(ai->ai_addr->sa_family == AF_INET)
+  {
+    sockaddr_in *sin = (sockaddr_in*)ai->ai_addr;
+    char s[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &sin->sin_addr, s, INET_ADDRSTRLEN);
+    io_lg << log(addr + " --> " + string(s)) << std::endl;
+
+    tgtaddr.sin_addr = sin->sin_addr;
   }
 }
 

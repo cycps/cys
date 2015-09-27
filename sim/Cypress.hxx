@@ -110,6 +110,9 @@ struct Sim
   unsigned long yx{0}, rx{0};
   std::vector<std::string> labels;
   
+  std::ofstream 
+    lg{"sim.log", std::ios_base::out | std::ios_base::app};
+  
   ActuationServer actuationServer;
   SensorManager sensorManager;
 
