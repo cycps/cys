@@ -112,27 +112,27 @@ mpich-3.1.4.tar.gz:
 
 #sundials ----------------------------------------------------------------------
 .PHONY: sundials
-sundials: mpich sundials-2.5.0
+sundials: mpich sundials-2.6.2
 	@printf "${BLUE}Installing sundials${DEFAULT}\n"
 	
-	@cd sundials-2.5.0; \
+	@cd sundials-2.6.2; \
 		./configure --enable-shared > /dev/null && \
 		make > /dev/null && \
 		make install > /dev/null
 	
-	@bash apply_patches.sh > /dev/null \
+	#@bash apply_patches.sh > /dev/null \
 	
 	@printf "${GREEN}Finished installing sundials${DEFAULT}\n"
 
-sundials-2.5.0: sundials-2.5.0.tar.gz
+sundials-2.6.2: sundials-2.6.2.tar.gz
 	@printf "${BLUE}Unpacking sundials${DEFAULT}\n"
-	@tar xzf sundials-2.5.0.tar.gz
+	@tar xzf sundials-2.6.2.tar.gz
 
-sundials-2.5.0.tar.gz:
-	@printf "${BLUE}Getting sundials-2.5.0 from bintray${DEFAULT}\n"
+sundials-2.6.2.tar.gz:
+	@printf "${BLUE}Getting sundials-2.6.2 from bintray${DEFAULT}\n"
 	@curl -Ls \
-		-o sundials-2.5.0.tar.gz \
-		https://bintray.com/artifact/download/cycps/core-dependencies/sundials-2.5.0.tar.gz
+		-o sundials-2.6.2.tar.gz \
+		https://bintray.com/artifact/download/cycps/core-dependencies/sundials-2.6.2.tar.gz
 
 
 .PHONY: clean

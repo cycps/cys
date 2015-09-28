@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y \
   make \
   binutils
 
-RUN mkdir /3p
-RUN cd 3p && curl -LO 
+RUN mkdir /3p && \
+  cd 3p && \
+  curl -LO https://raw.githubusercontent.com/cycps/cys/master/builder/dependencies.make && \
+  make -f dependencies.make
 
 CMD service ssh start && /bin/bash
