@@ -1,0 +1,14 @@
+--- nvector_parallel.h	2015-09-22 02:08:46.583778081 +0000
++++ nvector_parallel.h.new	2015-09-22 02:09:29.441522518 +0000
+@@ -50,10 +50,10 @@
+ #define _NVECTOR_PARALLEL_H
+ 
+ #ifdef __cplusplus  /* wrapper to enable C++ usage */
++#include <mpi.h>
+ extern "C" {
+ #endif
+ 
+-#include <mpi.h>
+ 
+ #include <sundials/sundials_nvector.h>
+ 
