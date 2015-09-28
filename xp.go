@@ -3,6 +3,7 @@ package xp
 import (
 	"fmt"
 	"os"
+	"os/exec"
 )
 
 func Main() {
@@ -27,18 +28,34 @@ func Main() {
 
 type Experiment struct {
 	Name  string
-	Nodes []Node
+	Nodes []*Node
+}
+
+type FileMap struct {
+	Local, Remote string
 }
 
 type Node struct {
-	Name, Cmd string
+	Name, Exe string
 	Args      []string
+	Files     map[string]string
 }
 
 var XP = new(Experiment)
 
-func NewNode(name, cmd string, args ...string) {
-	XP.Nodes = append(XP.Nodes, Node{name, cmd, args})
+func NewNode(name, exe string, args ...string) *Node {
+	n := new(Node)
+	n.Files = make(map[string]string)
+	n.Name = name
+	n.Exe = exe
+	n.Args = args
+	XP.Nodes = append(XP.Nodes, n)
+	return n
+}
+
+func (n *Node) AddFileMap(fm FileMap) *Node {
+	n.Files[fm.Local] = fm.Remote
+	return n
 }
 
 func Name(name string) {
@@ -50,16 +67,59 @@ func usage() {
 	os.Exit(1)
 }
 
-func up() {
-	out, err := exec.Cmd(
-		"docker", "network", "create", "-d", "overlay", XP.Name+"net").Output()
+func cmdErr(err error, msg string, out []byte) {
+	fmt.Fprintln(os.Stderr, msg)
+	fmt.Fprintf(os.Stderr, "%s\n", err)
+	fmt.Fprint(os.Stderr, string(out))
+	os.Exit(1)
+}
 
+func up() {
+
+	netname := XP.Name + "net"
+
+	out, err := exec.Command(
+		"docker", "network", "create", "-d", "overlay", netname).CombinedOutput()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Creating docker network failed")
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		fmt.Fprintln(os.Stderr, string(out))
+		cmdErr(err, "Creating docker network "+netname+" failed", out)
 	}
 
 	for _, n := range XP.Nodes {
+		out, err = exec.Command(
+			"docker", "service", "publish", n.Name+"."+netname).CombinedOutput()
+		if err != nil {
+			cmdErr(err, "Publishing service for "+n.Name+"failed", out)
+		}
+
+		out, err = exec.Command(
+			"docker", "run", "-itd", "--hostname="+n.Name, "--name="+n.Name,
+			"-v", "/cys:/cys", "cycps/cys").Output()
+		if err != nil {
+			cmdErr(err, "Running container for "+n.Name+" failed", out)
+		}
+
+		out, err = exec.Command(
+			"docker", "service", "attach", n.Name, n.Name+"."+netname).CombinedOutput()
+		if err != nil {
+			cmdErr(err, "Attaching "+n.Name+" container to the network failed", out)
+		}
+
+		out, err = exec.Command(
+			"docker", "cp", n.Exe, n.Name+":/app/").CombinedOutput()
+		if err != nil {
+			cmdErr(err, "Copying executable to "+n.Name+" failed", out)
+		}
+
+		for local, remote := range n.Files {
+
+			out, err = exec.Command(
+				"docker", "cp", local, remote).CombinedOutput()
+			if err != nil {
+				cmdErr(err, fmt.Sprintf("Copying local file %s to remote destination %s failed",
+					local, remote), out)
+			}
+
+		}
 	}
+
 }
