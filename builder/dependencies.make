@@ -116,7 +116,7 @@ sundials: mpich sundials-2.6.2
 	@printf "${BLUE}Installing sundials${DEFAULT}\n"
 	
 	@cd sundials-2.6.2; \
-    mkdir build && cd build \
+    mkdir build && cd build && \
 		cmake .. -G Ninja > /dev/null && \
 		ninja > /dev/null && \
 		ninja install > /dev/null
