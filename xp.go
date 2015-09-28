@@ -5,12 +5,18 @@ import (
 )
 
 type Experiment struct {
+	Nodes []Node
+}
+
+type Node struct {
+	Name, Cmd string
+	Args      []string
 }
 
 var XP = new(Experiment)
 
-func NewNode(name, executable string, args ...string) {
-
+func NewNode(name, cmd string, args ...string) {
+	XP.Nodes = append(XP.Nodes, Node{name, cmd, args})
 }
 
 func Main() {
