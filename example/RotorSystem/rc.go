@@ -1,6 +1,6 @@
 package main
 
-import "cyp/xp"
+import "github.com/cycps/cys"
 
 func main() {
 	rsc := "/cys/build/control/lib/RotorSpeedController"
@@ -8,7 +8,7 @@ func main() {
 	xpdir := "/cys/example/RotorSystem/control"
 	rscs := []string{"rca", "rcb", "rcc"}
 
-	for c := range rscs {
+	for _, c := range rscs {
 		xp.NewNode(c, rsc, xpdir+"/"+c+".yaml")
 	}
 	xp.NewNode("sim", sim)
