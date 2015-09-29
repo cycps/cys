@@ -10,9 +10,10 @@ const (
 	xpdir       = basedir + "/example/RotorSystem"
 )
 
+var controllers = []string{"rca", "rcb", "rcc"}
+
 func main() {
 	xp.Name("rc")
-	controllers := []string{"rca", "rcb", "rcc"}
 
 	for _, c := range controllers {
 		xp.NewController(c, rsc, xpdir+"/control/"+c+".yaml")
