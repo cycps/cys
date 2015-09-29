@@ -84,10 +84,14 @@ func usage() {
 	os.Exit(1)
 }
 
-func cmdErr(err error, msg string, out []byte) {
+func cmdWarn(err error, msg string, out []byte) {
 	fmt.Fprintln(os.Stderr, msg)
 	fmt.Fprintf(os.Stderr, "%s\n", err)
 	fmt.Fprint(os.Stderr, string(out))
+}
+
+func cmdErr(err error, msg string, out []byte) {
+	cmdWarn(err, msg, out)
 	os.Exit(1)
 }
 
@@ -102,7 +106,7 @@ func initNode(n *Node) {
 
 	out, err = exec.Command(
 		"docker", "run", "-itd", "--hostname="+n.Name, "--name="+n.Name,
-		"-v", "/cys:/cys", "cycps/cys").Output()
+		"-v", "/cys:/cys", "cycps/cys").CombinedOutput()
 	if err != nil {
 		cmdErr(err, "Running container for "+n.Name+" failed", out)
 	}
@@ -166,18 +170,18 @@ func shutdownNode(n *Node) {
 
 	out, err := exec.Command("docker", "stop", "-t", "0", n.Name).CombinedOutput()
 	if err != nil {
-		cmdErr(err, "Error shutting down node "+n.Name, out)
+		cmdWarn(err, "Error shutting down node "+n.Name, out)
 	}
 
 	out, err = exec.Command("docker", "rm", n.Name).CombinedOutput()
 	if err != nil {
-		cmdErr(err, "Error removing node "+n.Name, out)
+		cmdWarn(err, "Error removing node "+n.Name, out)
 	}
 
 	sname := n.Name + "." + XP.Name + "net"
 	out, err = exec.Command("docker", "service", "unpublish", sname).CombinedOutput()
 	if err != nil {
-		cmdErr(err, "Error unpublishing service "+sname, out)
+		cmdWarn(err, "Error unpublishing service "+sname, out)
 	}
 
 }
@@ -193,7 +197,7 @@ func down() {
 	netname := XP.Name + "net"
 	out, err := exec.Command("docker", "network", "rm", netname).CombinedOutput()
 	if err != nil {
-		cmdErr(err, "Error removing network "+netname, out)
+		cmdWarn(err, "Error removing network "+netname, out)
 	}
 
 }
