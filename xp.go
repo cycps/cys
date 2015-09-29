@@ -105,6 +105,16 @@ func up() {
 		}
 
 		out, err = exec.Command(
+			"docker", "exec", n.Name, "mkdir", "-p", "/app").CombinedOutput()
+		if err != nil {
+			cmdErr(err, "Making /app dir failed on node "+n.Name, out)
+		}
+		out, err = exec.Command(
+			"docker", "exec", n.Name, "mkdir", "-p", "/cyp").CombinedOutput()
+		if err != nil {
+			cmdErr(err, "Making /cyp dir failed on node "+n.Name, out)
+		}
+		out, err = exec.Command(
 			"docker", "cp", n.Exe, n.Name+":/app/").CombinedOutput()
 		if err != nil {
 			cmdErr(err, "Copying executable to "+n.Name+" failed", out)
@@ -113,7 +123,7 @@ func up() {
 		for local, remote := range n.Files {
 
 			out, err = exec.Command(
-				"docker", "cp", local, remote).CombinedOutput()
+				"docker", "cp", local, n.Name+":"+remote).CombinedOutput()
 			if err != nil {
 				cmdErr(err, fmt.Sprintf("Copying local file %s to remote destination %s failed",
 					local, remote), out)

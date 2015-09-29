@@ -1,3 +1,3 @@
 #/usr/bin/env bash
 
-docker run -itd --hostname=buildbot --name=buildbot -v ~/@/cycps/cys:/cys cycps/builder
+docker run -itd --hostname=buildbot --name=buildbot -v `cd ..; pwd`:/cys cycps/builder

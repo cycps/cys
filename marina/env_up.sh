@@ -17,16 +17,16 @@ docker-machine create -d generic \
 #establish docker machine environment
 eval "$(docker-machine env marina)"
 
-#sync my code
+#sync me code
 rsync -a -e \
   "ssh -o StrictHostKeyChecking=no" --rsh "ssh rgoodfel@users.isi.deterlab.net ssh" \
-  /Users/ry/@/cycps/cys \
+  `cd ..; pwd` \
   rgoodfel@node-0.marina.cypress:/users/rgoodfel
 
 #run the build machine with the synced code mounted as a volume
-docker run -d \
-  -v /users/rgoodfel/cys:/cys \
-  --hostname=build \
-  --name=build \
-  cycps/build
+#docker run -d \
+#  -v /users/rgoodfel/cys:/cys \
+#  --hostname=build \
+#  --name=build \
+#  cycps/build
 
