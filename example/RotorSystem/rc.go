@@ -15,9 +15,7 @@ func main() {
 	controllers := []string{"rca", "rcb", "rcc"}
 
 	for _, c := range controllers {
-		cfg := c + ".yaml"
-		fm := xp.FileMap{xpdir + "/control/" + cfg, "/cyp/" + cfg}
-		xp.NewController(c, rsc, fm.Remote).AddFileMap(fm)
+		xp.NewController(c, rsc, xpdir+"/control/"+c+".yaml")
 	}
 
 	xp.SetSim(sim, xpdir+"/sim/sim.yaml")

@@ -47,12 +47,13 @@ type Node struct {
 
 var XP = new(Experiment)
 
-func NewController(name, exe string, args ...string) *Node {
+func NewController(name, exe, config string) *Node {
 	n := new(Node)
 	n.Files = make(map[string]string)
 	n.Name = name
 	n.Exe = exe
-	n.Args = args
+	n.Args = []string{cfgPath(config)}
+	n.Files[config] = cfgPath(config)
 	XP.Controllers = append(XP.Controllers, n)
 	return n
 }
@@ -198,7 +199,9 @@ func down() {
 }
 
 func runController(n *Node) {
-	out, err := exec.Command("docker", "exec", "-d", n.Name, n.Exe).CombinedOutput()
+	out, err :=
+		exec.Command("docker", "exec", "-d", n.Name, appPath(n.Exe), n.Args[0]).
+			CombinedOutput()
 	if err != nil {
 		cmdErr(err, "Error executing controller "+n.Name+
 			" with executable "+n.Exe, out)
@@ -215,8 +218,9 @@ func cfgPath(pth string) string {
 
 func runSim() {
 	n := XP.Sim
-	out, err := exec.Command("docker", "exec", "-d", n.Name, appPath(n.Exe)).
-		CombinedOutput()
+	out, err :=
+		exec.Command("docker", "exec", "-d", n.Name, appPath(n.Exe)).
+			CombinedOutput()
 	if err != nil {
 		cmdErr(err, "Error executing simulation", out)
 	}
