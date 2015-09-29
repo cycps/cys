@@ -7,7 +7,7 @@ const (
 	rsc         = basedir + "/build/control/lib/RotorSpeedController"
 	sim         = basedir + "/build/example/RotorSystem/sim/RotorSystem"
 	simsettings = basedir + "/build/example/RotorSystem/sim/RotorSystem"
-	xpdir       = basedir + "/example/RotorSystem/control"
+	xpdir       = basedir + "/example/RotorSystem"
 )
 
 func main() {
@@ -16,11 +16,11 @@ func main() {
 
 	for _, c := range controllers {
 		cfg := c + ".yaml"
-		fm := xp.FileMap{xpdir + "/" + cfg, "/cyp/" + cfg}
+		fm := xp.FileMap{xpdir + "/control/" + cfg, "/cyp/" + cfg}
 		xp.NewController(c, rsc, fm.Remote).AddFileMap(fm)
 	}
 
-	xp.SetSim(sim, xpdir+"/sim.yaml")
+	xp.SetSim(sim, xpdir+"/sim/sim.yaml")
 
 	xp.Main()
 }

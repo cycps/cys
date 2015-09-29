@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 )
 
 func Main() {
@@ -21,6 +22,7 @@ func Main() {
 		down()
 	case "run":
 		fmt.Println("running experiment")
+		run()
 	default:
 		usage()
 	}
@@ -60,8 +62,10 @@ func SetSim(exe string, settings string) *Node {
 	n.Files = make(map[string]string)
 	n.Name = "sim"
 	n.Exe = exe
-	n.Args = []string{settings}
+	n.Args = []string{cfgPath(settings)}
 	XP.Sim = n
+	n.Files[exe] = appPath(exe)
+	n.Files[settings] = cfgPath(settings)
 	return n
 }
 
@@ -191,4 +195,37 @@ func down() {
 		cmdErr(err, "Error removing network "+netname, out)
 	}
 
+}
+
+func runController(n *Node) {
+	out, err := exec.Command("docker", "exec", "-d", n.Name, n.Exe).CombinedOutput()
+	if err != nil {
+		cmdErr(err, "Error executing controller "+n.Name+
+			" with executable "+n.Exe, out)
+	}
+}
+
+func appPath(pth string) string {
+	return "/app/" + path.Base(pth)
+}
+
+func cfgPath(pth string) string {
+	return "/cyp/" + path.Base(pth)
+}
+
+func runSim() {
+	n := XP.Sim
+	out, err := exec.Command("docker", "exec", "-d", n.Name, appPath(n.Exe)).
+		CombinedOutput()
+	if err != nil {
+		cmdErr(err, "Error executing simulation", out)
+	}
+}
+
+func run() {
+	for _, n := range XP.Controllers {
+		runController(n)
+	}
+	runSim()
+	fmt.Println("simulation is running")
 }

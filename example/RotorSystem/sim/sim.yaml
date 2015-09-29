@@ -1,0 +1,4 @@
+simulation:
+  begin: 0
+  end: 0
+  minstep: 0.000001
