@@ -208,6 +208,11 @@ std::string ts()
   return std::string("[") + std::string(ts) + std::string("] ");
 }
 
+constexpr unsigned long operator "" _ul(long double d)
+{
+  return static_cast<unsigned long>(d);
+}
+
 
 }
 
