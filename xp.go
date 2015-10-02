@@ -2,6 +2,7 @@ package xp
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"os"
 	"os/exec"
 	"path"
@@ -23,6 +24,9 @@ func Main() {
 	case "run":
 		fmt.Println("running experiment")
 		run()
+	case "check":
+		fmt.Println("checking experiment description")
+		check()
 	default:
 		usage()
 	}
@@ -146,6 +150,10 @@ func initNode(n *Node) {
 
 	}
 
+}
+
+func check() {
+	color.Green("your experiment looks good!")
 }
 
 func up() {
