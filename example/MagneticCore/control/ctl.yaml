@@ -1,7 +1,8 @@
-inputs:
-  w:
+input:
     tag: 1001
-outputs:
-  i:
+output:
     tag: 1001
     address: sim
+Kp: 1.47
+Rp: 2200
+
