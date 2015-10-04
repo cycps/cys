@@ -3,5 +3,5 @@
 #sync my code
 rsync -a -e \
   "ssh -o StrictHostKeyChecking=no" --rsh "ssh rgoodfel@users.isi.deterlab.net ssh" \
-  /Users/ry/@/cycps/cys \
+  ~/@/cycps/cys \
   rgoodfel@node-0.marina.cypress:/

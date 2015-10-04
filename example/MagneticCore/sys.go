@@ -3,7 +3,7 @@ package main
 import "github.com/cycps/cys"
 
 const (
-	basedir     = "/Users/ry/@/cycps/cys"
+	basedir     = "/home/ry/@/cycps/cys"
 	ctl         = basedir + "/build/control/lib/SP"
 	sim         = basedir + "/build/example/MagneticCore/sim/MCoreSystem"
 	simsettings = basedir + "/example/MagneticCore/sim/sim.yaml"

@@ -24,5 +24,5 @@ int main()
 {
   MCoreUnit m{"mcu", 1001, "ctl"};
 
-  return Sim::get().run(0, 2, 1e-3);
+  return Sim::get().run(0, 10, 1e-3);
 }

@@ -65,7 +65,7 @@ double UseLatestArrival(const std::vector<CVal> &, double last);
 
 struct Controller
 {
-  size_t period{4}; //4 millisecond default period
+  size_t period{100}; //100 microsecond default period
   std::string name;
   size_t input_size{0};
 

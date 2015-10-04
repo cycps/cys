@@ -19,6 +19,7 @@ using namespace cys;
 using std::endl;
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
+using std::chrono::microseconds;
 using std::lock_guard;
 using std::mutex;
 using std::thread;
@@ -171,7 +172,7 @@ void Controller::kernel()
     swapBuffers();
     computeFrame();
     compute();
-    sleep_for(milliseconds(period));
+    sleep_for(microseconds(period));
   }
 }
 

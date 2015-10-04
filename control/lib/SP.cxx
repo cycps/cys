@@ -54,6 +54,7 @@ struct SP : public Controller
     out_addr = config["output"]["address"].as<string>();
     Kp = config["Kp"].as<double>();
     Rp = config["Rp"].as<double>();
+    period = config["period"].as<size_t>();
   }
 
   void compute() override

@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <fstream>
+#include <yaml-cpp/yaml.h>
 
 #include "Cypress.hxx"
 #include "Actuator.hxx"
@@ -27,10 +28,11 @@ string Sim::header()
   {
     s += l + ",";
   }
-  for(string &l: labels)
+  for(size_t i=0; i<labels.size()-1; ++i)
   {
-    s += l + "',";
+    s += labels[i] + "',";
   }
+  s += labels[labels.size()-1] + "'";
   return s;
 }
 
@@ -41,10 +43,11 @@ string Sim::datastring()
   {
     s += to_string(y[i]) + ",";
   }
-  for(unsigned long i=0; i<yx; ++i)
+  for(unsigned long i=0; i<yx-1; ++i)
   {
     s += to_string(dy[i]) + ",";
   }
+  s += to_string(dy[yx-1]);
   return s;
 }
 
@@ -209,7 +212,9 @@ bool SensorCmp::operator()(const Sensor *a, const Sensor *b)
 
 SingleDirect::SingleDirect(Sim &sim)
   : sim{&sim}
-{  }
+{  
+
+}
 
 int SingleDirect::run(realtype begin, realtype end, realtype step)
 {
@@ -257,10 +262,11 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
   //r_out << sim->datastring() << endl;
   for(unsigned long j=0; j<i; ++j)
   {
-    for(unsigned long k=0; k<(sim->yx*2+1); ++k)
+    for(unsigned long k=0; k<(sim->yx*2+1)-1; ++k)
     {
       r_out << results[j*(sim->yx*2+1) + k] << ",";
     }
+    r_out << results[j*(sim->yx*2+1)-1];
     r_out << endl;
   }
 

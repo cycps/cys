@@ -24,6 +24,12 @@ func Main() {
 	case "run":
 		fmt.Println("running experiment")
 		run()
+	case "stop":
+		fmt.Println("stopping experiment")
+		stop()
+	case "update":
+		fmt.Println("updating experiment components")
+		update()
 	case "check":
 		fmt.Println("checking experiment description")
 		check()
@@ -99,6 +105,27 @@ func cmdErr(err error, msg string, out []byte) {
 	os.Exit(1)
 }
 
+func updateNode(n *Node) {
+	out, err := exec.Command(
+		"docker", "cp", n.Exe, n.Name+":/app/").CombinedOutput()
+	if err != nil {
+		cmdErr(err, "Copying executable to "+n.Name+" failed", out)
+	}
+
+	for local, remote := range n.Files {
+
+		out, err = exec.Command(
+			"docker", "cp", local, n.Name+":"+remote).CombinedOutput()
+		if err != nil {
+			cmdErr(err,
+				fmt.Sprintf("Copying local file %s to remote destination %s failed",
+					local, remote),
+				out)
+		}
+
+	}
+}
+
 func initNode(n *Node) {
 	netname := XP.Name + "net"
 
@@ -131,24 +158,7 @@ func initNode(n *Node) {
 	if err != nil {
 		cmdErr(err, "Making /cyp dir failed on node "+n.Name, out)
 	}
-	out, err = exec.Command(
-		"docker", "cp", n.Exe, n.Name+":/app/").CombinedOutput()
-	if err != nil {
-		cmdErr(err, "Copying executable to "+n.Name+" failed", out)
-	}
-
-	for local, remote := range n.Files {
-
-		out, err = exec.Command(
-			"docker", "cp", local, n.Name+":"+remote).CombinedOutput()
-		if err != nil {
-			cmdErr(err,
-				fmt.Sprintf("Copying local file %s to remote destination %s failed",
-					local, remote),
-				out)
-		}
-
-	}
+	updateNode(n)
 
 }
 
@@ -172,6 +182,14 @@ func up() {
 
 	initNode(XP.Sim)
 
+}
+
+func update() {
+	for _, n := range XP.Controllers {
+		updateNode(n)
+	}
+	updateNode(XP.Sim)
+	fmt.Println("experiment components up to date")
 }
 
 func shutdownNode(n *Node) {
@@ -220,6 +238,17 @@ func runController(n *Node) {
 	}
 }
 
+func stopController(n *Node) {
+	out, err :=
+		exec.Command("docker", "exec", "-d", n.Name, "pkill", path.Base(n.Exe)).
+			CombinedOutput()
+	if err != nil {
+		cmdWarn(err, "Error stopping controller "+n.Name+
+			" for executable "+path.Base(n.Exe), out)
+	}
+
+}
+
 func appPath(pth string) string {
 	return "/app/" + path.Base(pth)
 }
@@ -238,10 +267,30 @@ func runSim() {
 	}
 }
 
+func stopSim() {
+	n := XP.Sim
+	out, err :=
+		exec.Command("docker", "exec", "-d", n.Name, "pkill", path.Base(n.Exe)).
+			CombinedOutput()
+	if err != nil {
+		cmdWarn(err, "Error stopping simulation with executable "+path.Base(n.Exe), out)
+	}
+}
+
 func run() {
+	fmt.Println("stopping existing experiment processes")
+	stop() //controllers running atop each other is no fun
 	for _, n := range XP.Controllers {
 		runController(n)
 	}
 	runSim()
-	fmt.Println("simulation is running")
+	fmt.Println("experiment is running")
+}
+
+func stop() {
+	for _, n := range XP.Controllers {
+		stopController(n)
+	}
+	stopSim()
+	fmt.Println("all controllers and simulations stopped")
 }

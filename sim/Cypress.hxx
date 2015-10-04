@@ -97,8 +97,6 @@ struct SingleDirect
 
   void initState();
   void initIda(realtype begin);
-  //void writeDataHeader();
-  //void compute();
   void dumpState(std::ostream &out);
 
   int run(realtype begin, realtype end, realtype step);
