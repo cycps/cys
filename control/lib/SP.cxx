@@ -87,7 +87,7 @@ int main(int argc, char **argv)
   signal(SIGINT, sigh);
 
   if(argc != 3) {
-    std::cerr << "usage: SP name <config_file>" << std::endl;
+    std::cerr << "usage: SP <name> <config_file>" << std::endl;
     return 1;
   }
 

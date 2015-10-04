@@ -212,7 +212,7 @@ func down() {
 
 func runController(n *Node) {
 	out, err :=
-		exec.Command("docker", "exec", "-d", n.Name, appPath(n.Exe), n.Args[0]).
+		exec.Command("docker", "exec", "-d", n.Name, appPath(n.Exe), n.Name, n.Args[0]).
 			CombinedOutput()
 	if err != nil {
 		cmdErr(err, "Error executing controller "+n.Name+

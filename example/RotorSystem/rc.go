@@ -3,11 +3,10 @@ package main
 import "github.com/cycps/cys"
 
 const (
-	basedir     = "/Users/ry/@/cycps/cys"
-	rsc         = basedir + "/build/control/lib/RotorSpeedController"
-	sim         = basedir + "/build/example/RotorSystem/sim/RotorSystem"
-	simsettings = basedir + "/build/example/RotorSystem/sim/RotorSystem"
-	xpdir       = basedir + "/example/RotorSystem"
+	basedir = "/Users/ry/@/cycps/cys"
+	rsc     = basedir + "/build/control/lib/RotorSpeedController"
+	sim     = basedir + "/build/example/RotorSystem/sim/RotorSystem"
+	xpdir   = basedir + "/example/RotorSystem"
 )
 
 var controllers = []string{"rca", "rcb", "rcc"}
