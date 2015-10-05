@@ -1,0 +1,8 @@
+input:
+    tag: 1001
+output:
+    tag: 1001
+    address: sim
+Kp: 1e-6
+Rp: 2200
+period: 1000
