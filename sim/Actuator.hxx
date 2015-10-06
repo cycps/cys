@@ -14,7 +14,11 @@ namespace cys {
 struct Actuator : public Object
 {
   Var v;
-  realtype s_limit, d_limit, p{0}, dp{0};
+  realtype 
+    s_limit, //static limit of actuation
+    d_limit, //dynamic limit of actuation
+    p{0}, 
+    dp{0};
   unsigned long id_tag;
 
   Actuator(std::string name, Var v, realtype s_limit, realtype d_limit, 

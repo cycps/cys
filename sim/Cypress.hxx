@@ -143,7 +143,7 @@ struct Sim
   }
 
   void initObjects();
-  bool initialConditionCheck();
+  bool conditionsCheck();
   void step();
   std::string header();
   std::string datastring();
@@ -168,7 +168,7 @@ struct Object
   std::string name;
   void label(Var &v, std::string);
   void label(std::vector<std::pair<Var, std::string>>);
-  bool initialConditionCheck();
+  bool conditionsCheck();
 
   /*
   private:

@@ -1,8 +1,8 @@
 input:
-    tag: 1003
-output:
     tag: 1001
+output:
+    tag: 1002
     address: sim
-Kp: 1e-3
+Kp: 1e-6
 Rp: 13500
 period: 1000

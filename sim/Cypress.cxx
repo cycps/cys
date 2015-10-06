@@ -229,10 +229,10 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
   initIda(begin);
   sim->initObjects();
   
-  bool ok = sim->initialConditionCheck();
+  bool ok = sim->conditionsCheck();
   if(!ok)
   {
-    lg << log("initial conditions check failed, "
+    lg << log("conditions check failed, "
               "see the simulator log file for details") << endl;
     exit(1);
   }
@@ -256,6 +256,10 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
     {
       lg << log("["+to_string(t)+"] IDASolve failed: " + to_string(retval)) 
          << endl;
+      
+      lg << log("running conditions check to help isolate") << endl;
+      sim->conditionsCheck();
+
       exit(1);
     }
     //sim->t = tret;
@@ -384,21 +388,21 @@ void Sim::initObjects()
   for(Object *o : objects) o->init();
 }
 
-bool Sim::initialConditionCheck()
+bool Sim::conditionsCheck()
 {
-  lg << log("Checking initial conditions") << endl;
+  lg << log("Checking conditions") << endl;
   bool ok{true};
   for(Object *o : objects)
   {
-    ok = ok && o->initialConditionCheck();
+    ok = ok && o->conditionsCheck();
   }
-  if(ok) lg << log("Initial conditions look good!") << endl;
-  else   lg << log("Initial conditions check failed") << endl;
+  if(ok) lg << log("Conditions look good!") << endl;
+  else   lg << log("Conditions check failed") << endl;
 
   return ok;
 }
 
-bool Object::initialConditionCheck()
+bool Object::conditionsCheck()
 {
   resid();
   bool ok{true};

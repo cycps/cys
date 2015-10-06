@@ -28,11 +28,11 @@ struct TurbineHouse
 
     //Rotor Control
     ws{name+".ws", m.w, 1e3_ul, rotor_velocity_tag, w_ctl},
-    mta{name+".mta", m.t_m, 377, 1, mechanical_torque_tag},
+    mta{name+".mta", m.t_m, 30000, 1000, mechanical_torque_tag},
 
     //Field Control
     eas{name+".eas", m.e_a, 1e6_ul, a_terminal_voltage_tag, f_ctl},
-    fca{name+".fca", m.e_fd, 30, 1, field_current_tag}
+    fca{name+".fca", m.e_fd, 30, 0.000001, field_current_tag}
 
   {}
 };
