@@ -16,22 +16,23 @@ namespace cys { namespace power {
  * ===========================================================================*/
 struct SynchronousMachine : public Object
 {
-  // Variables: (25) +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Variables: (26) +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Var
 /**/f_a, f_b, f_c,        //phase flux linkages
 /**/f_fd, f_kd, f_kq,     //rotor flux linkage
 /**/e_a, e_b, e_c,        //stator phase to neutral voltages
     i_a, i_b, i_c,        //stator phase currents
-    i_fd, i_kd, i_kq,     //field and amortisseur circuit currents
+/**/i_fd, i_kd, i_kq,     //field and amortisseur circuit currents
 /**/l_aa, l_bb, l_cc,     //self inductances of stator windings
 /**/l_ab, l_bc, l_ca,     //mutual inductances of stator windings
 /**/l_afd, l_akd, l_akq,  //mutual inductances between stator and rotor windings
-    theta,                //rotor position relative to the a-phase axis
-    t_e, t_m;             //electrical and mechanical torque on the rotor
+/**/theta,                //rotor position relative to the a-phase axis
+/**/t_e;                  //electrical and mechanical torque on the rotor
 
-  // Controlled Variables: (1) +++++++++++++++++++++++++++++++++++++++++++++++++
+  // Controlled Variables: (2) +++++++++++++++++++++++++++++++++++++++++++++++++
   Var
-    e_fd;                 //field voltage
+    e_fd,                 //field voltage
+    t_m;                  //mechanical torque
 
   // Constants +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   const realtype
@@ -177,10 +178,37 @@ struct SynchronousMachine : public Object
       )
     );
 
+    //electrical torque
+    r(21) = t_e - (
+        f_a*i_a + f_b*i_b + f_c*i_b
+    );
 
-    //...
-      
-    //r(20) = ...
+    //rotor motion
+    r(22) = d(theta) - (
+      t_m - t_e
+    );
+
+    //check down below
+    //^^^^^^^^^^^^^^^^
+    
+    //field current
+    r(23) = e_fd - (
+        i_fd * R_fd
+    );
+
+    //amortisseur currents
+    r(24) = d(f_kd) - (
+        i_kd * R_kd
+    );
+
+    r(25) = d(f_kq) - (
+        i_kq * R_kq
+    );
+
+    r(26) = - (
+      e_a + e_b + e_c
+    );
+
   }
 
   //yeah this is gross, we need a better / more automatic way of labeling 
