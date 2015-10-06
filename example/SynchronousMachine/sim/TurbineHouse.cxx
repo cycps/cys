@@ -28,8 +28,8 @@ struct TurbineHouse
     },
     eas{name+".eas", m.e_a, 1e6_ul, a_terminal_voltage_tag, target},
     ws{name+".ws", m.w, 1e3_ul, rotor_velocity_tag, target},
-    fca{name+".fca", m.e_fd, 100, 1, field_current_tag},
-    mta{name+".mta", m.t_m, 100, 1, mechanical_torque_tag}
+    fca{name+".fca", m.e_fd, 30, 1, field_current_tag},
+    mta{name+".mta", m.t_m, 377, 1, mechanical_torque_tag}
   {}
 };
 
