@@ -142,6 +142,8 @@ struct Sim
     return solver.run(begin, end, step);
   }
 
+  void initObjects();
+  bool initialConditionCheck();
   void step();
   std::string header();
   std::string datastring();
@@ -156,26 +158,33 @@ struct Sim
 
 struct Object 
 {
-  explicit Object(unsigned long n, std::string name);
+  explicit Object(ulong n, std::string name);
 
   virtual void resid() = 0;
+  virtual void init() { };
   realtype& r(unsigned int offset)        { return Sim::get().r[idx + offset]; }
   realtype  cr(unsigned int offset) const { return Sim::get().r[idx + offset]; }
+  const ulong n, idx;
   std::string name;
   void label(Var &v, std::string);
   void label(std::vector<std::pair<Var, std::string>>);
+  bool initialConditionCheck();
 
+  /*
   private:
     unsigned long idx;
+    */
 };
 
 struct Var
 {
   unsigned long idx;
-  inline operator realtype&()      { return Sim::get().y[idx]; }
-  inline operator realtype() const { return Sim::get().y[idx]; }
+  inline operator realtype& ()       { return Sim::get().y[idx]; }
+  inline operator realtype  () const { return Sim::get().y[idx]; }
   inline realtype& d()             { return Sim::get().dy[idx]; }
   inline realtype  d()       const { return Sim::get().dy[idx]; }
+  inline void operator ()(realtype &r) { Sim::get().y[idx] = r; }
+  inline void d(realtype r) { Sim::get().dy[idx] = r; }
 
   Var()
   {
@@ -185,6 +194,7 @@ struct Var
 
   Var(const Var &v): idx{v.idx} {}
   void operator =(const Var &v) { idx = v.idx; }
+  void operator =(realtype r) { this->operator()(r); }
 };
 
 inline realtype& d(Var &v) { return  v.d(); }

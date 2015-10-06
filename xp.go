@@ -90,7 +90,7 @@ func Name(name string) {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: xp [up|down|run]\n")
+	fmt.Fprintf(os.Stderr, "usage: xp [up|down|run|stop|update|check]\n")
 	os.Exit(1)
 }
 
@@ -137,7 +137,7 @@ func initNode(n *Node) {
 
 	out, err = exec.Command(
 		"docker", "run", "-itd", "--hostname="+n.Name, "--name="+n.Name,
-		"-v", "/cys:/cys", "cycps/cys").CombinedOutput()
+		"--privileged", "-v", "/cys:/cys", "cycps/cys").CombinedOutput()
 	if err != nil {
 		cmdErr(err, "Running container for "+n.Name+" failed", out)
 	}

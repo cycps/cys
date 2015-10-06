@@ -1,20 +1,24 @@
 package main
 
-import "github.com/cycps/cys"
+import (
+	"github.com/cycps/cys"
+	"os"
+)
 
-const (
-	basedir     = "/home/ry/@/cycps/cys"
+var (
+	basedir     = os.Getenv("CYPATH")
 	ctl         = basedir + "/build/control/lib/SP"
 	sim         = basedir + "/build/example/SynchronousMachine/sim/TurbineHouse"
 	xpdir       = basedir + "/example/SynchronousMachine"
-	simsettings = xpidr + "/sim/sim.yaml"
+	simsettings = xpdir + "/sim/sim.yaml"
 )
 
 var controllers = []string{"ctl"}
 
 func main() {
-	xp.Name("mc")
-	xp.NewController("ctl", ctl, xpdir+"/control/ctl.yaml")
+	xp.Name("syncc")
+	xp.NewController("f_ctl", ctl, xpdir+"/control/field_ctl.yaml")
+	xp.NewController("w_ctl", ctl, xpdir+"/control/rotor_ctl.yaml")
 	xp.SetSim(sim, simsettings)
 	xp.Main()
 }

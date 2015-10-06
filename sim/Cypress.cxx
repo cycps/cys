@@ -51,8 +51,8 @@ string Sim::datastring()
   return s;
 }
 
-Object::Object(unsigned long n, string name)
-  : name{name}, idx{Sim::get().nextResidIndex(n)}
+Object::Object(ulong n, string name)
+  : n{n}, idx{Sim::get().nextResidIndex(n)}, name{name}
 {
   Sim::get().objects.push_back(this);
 }
@@ -227,6 +227,15 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
   lg << log("N=" + to_string(sim->yx)) << endl;
   initState();
   initIda(begin);
+  sim->initObjects();
+  
+  bool ok = sim->initialConditionCheck();
+  if(!ok)
+  {
+    lg << log("initial conditions check failed, "
+              "see the simulator log file for details") << endl;
+    exit(1);
+  }
 
   realtype tret{0};
  
@@ -370,3 +379,37 @@ void SingleDirect::initIda(realtype begin)
   lg << log("IDAInit ok") << endl;
 }
 
+void Sim::initObjects()
+{
+  for(Object *o : objects) o->init();
+}
+
+bool Sim::initialConditionCheck()
+{
+  lg << log("Checking initial conditions") << endl;
+  bool ok{true};
+  for(Object *o : objects)
+  {
+    ok = ok && o->initialConditionCheck();
+  }
+  if(ok) lg << log("Initial conditions look good!") << endl;
+  else   lg << log("Initial conditions check failed") << endl;
+
+  return ok;
+}
+
+bool Object::initialConditionCheck()
+{
+  resid();
+  bool ok{true};
+  for(ulong i=0; i<n; ++i)
+  {
+    realtype ri = r(i);
+    if(std::abs(ri) > 1e-6)
+    {
+      Sim::get().lg << name << ": r(" << i << ") = " << ri << endl;
+      ok = false;
+    }
+  }
+  return ok;
+}

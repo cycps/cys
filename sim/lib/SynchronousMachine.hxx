@@ -18,17 +18,17 @@ struct SynchronousMachine : public Object
 {
   // Variables: (27) +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Var
-/**/f_a, f_b, f_c,        //phase flux linkages
-/**/f_fd, f_kd, f_kq,     //rotor flux linkage
-/**/e_a, e_b, e_c,        //stator phase to neutral voltages
+    f_a, f_b, f_c,        //phase flux linkages
+    f_fd, f_kd, f_kq,     //rotor flux linkage
+    e_a, e_b, e_c,        //stator phase to neutral voltages
     i_a, i_b, i_c,        //stator phase currents
-/**/i_fd, i_kd, i_kq,     //field and amortisseur circuit currents
-/**/l_aa, l_bb, l_cc,     //self inductances of stator windings
-/**/l_ab, l_bc, l_ca,     //mutual inductances of stator windings
-/**/l_afd, l_akd, l_akq,  //mutual inductances between stator and rotor windings
-/**/theta,                //rotor position relative to the a-phase axis
-/**/w,                    //rotor angular velocity
-/**/t_e;                  //electrical and mechanical torque on the rotor
+    i_fd, i_kd, i_kq,     //field and amortisseur circuit currents
+    l_aa, l_bb, l_cc,     //self inductances of stator windings
+    l_ab, l_bc, l_ca,     //mutual inductances of stator windings
+    l_afd, l_akd, l_akq,  //mutual inductances between stator and rotor windings
+    theta,                //rotor position relative to the a-phase axis
+    w,                    //rotor angular velocity
+    t_e;                  //electrical and mechanical torque on the rotor
 
   // Controlled Variables: (2) +++++++++++++++++++++++++++++++++++++++++++++++++
   Var
@@ -55,7 +55,7 @@ struct SynchronousMachine : public Object
       realtype L_ffd, realtype L_fkd,
       realtype L_kkq, realtype L_kkd
   )
-  : Object(28, name),
+  : Object(27, name),
     R_fd{R_fd}, R_kd{R_kd}, R_kq{R_kq},
     R_a{R_a}, R_b{R_b}, R_c{R_c},
     L_aa0{L_aa0}, L_aa2{L_aa2},
@@ -65,6 +65,25 @@ struct SynchronousMachine : public Object
     L_kkq{L_kkq}, L_kkd{L_kkd}
   {
     makeLabels();
+  }
+
+  //because the machine inductances are nonzero at t=0 we need to
+  //initialize them
+  void init() override
+  {
+    //Phase self inductances
+    l_aa = L_aa0 + L_aa2*cos(2*theta);
+    l_bb = L_aa0 + L_aa2*cos(2*(theta - 2*PI/3));
+    l_cc = L_aa0 + L_aa2*cos(2*(theta + 2*PI/3));
+
+    //Phase mutual inductances
+    l_ab = -L_ab0 - L_ab2*cos(2*theta + PI/3);
+    l_bc = -L_ab0 - L_ab2*cos(2*theta - PI);
+    l_ca = -L_ab0 - L_ab2*cos(2*theta - PI/3);
+    
+    l_afd = L_afd*cos(theta);
+    l_akd = L_akd*cos(theta);
+    l_akq = -L_akq*sin(theta);
   }
 
   void resid() override
