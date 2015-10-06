@@ -1,0 +1,8 @@
+input:
+    tag: 1004
+output:
+    tag: 1002
+    address: sim
+Kp: 1
+Rp: 376.99111843077515
+period: 10000

@@ -16,7 +16,7 @@ namespace cys { namespace power {
  * ===========================================================================*/
 struct SynchronousMachine : public Object
 {
-  // Variables: (26) +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Variables: (27) +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Var
 /**/f_a, f_b, f_c,        //phase flux linkages
 /**/f_fd, f_kd, f_kq,     //rotor flux linkage
@@ -27,6 +27,7 @@ struct SynchronousMachine : public Object
 /**/l_ab, l_bc, l_ca,     //mutual inductances of stator windings
 /**/l_afd, l_akd, l_akq,  //mutual inductances between stator and rotor windings
 /**/theta,                //rotor position relative to the a-phase axis
+/**/w,                    //rotor angular velocity
 /**/t_e;                  //electrical and mechanical torque on the rotor
 
   // Controlled Variables: (2) +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -188,25 +189,23 @@ struct SynchronousMachine : public Object
       t_m - t_e
     );
 
+    r(23) = w - d(theta);
+
     //check down below
     //^^^^^^^^^^^^^^^^
     
     //field current
-    r(23) = e_fd - (
+    r(24) = e_fd - (
         i_fd * R_fd
     );
 
     //amortisseur currents
-    r(24) = d(f_kd) - (
+    r(25) = d(f_kd) - (
         i_kd * R_kd
     );
 
-    r(25) = d(f_kq) - (
+    r(26) = d(f_kq) - (
         i_kq * R_kq
-    );
-
-    r(26) = - (
-      e_a + e_b + e_c
     );
 
   }
