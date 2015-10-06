@@ -29,7 +29,10 @@
 
 #include "Protocol.hxx"
 
+
 namespace cys {
+
+constexpr long double PI{3.14159265358979323846264338327950288};
 
 struct Sim;
 struct Actuator;
@@ -160,6 +163,7 @@ struct Object
   realtype  cr(unsigned int offset) const { return Sim::get().r[idx + offset]; }
   std::string name;
   void label(Var &v, std::string);
+  void label(std::vector<std::pair<Var, std::string>>);
 
   private:
     unsigned long idx;

@@ -61,6 +61,11 @@ void Object::label(Var &v, string s)
 {
   Sim::get().labels[v.idx] = name+"."+s;
 }
+  
+void Object::label(std::vector<std::pair<Var, std::string>> labels)
+{
+  for(auto &p : labels) label(p.first, p.second);
+}
 
 void Sim::step()
 {
