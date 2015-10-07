@@ -12,5 +12,5 @@ if len(sys.argv) != 2:
 
 matplotlib.style.use('ggplot')
 
-df = pd.DataFrame.from_csv(sys.argv[1])
-df.plot(); plt.show();
+df = pd.read_csv(sys.argv[1], index_col=["t"], usecols=["t", "myhouse.m.theta", "myhouse.m.w", "myhouse.m.w'"])
+df.plot(ylim=[-10, 500]); plt.show();

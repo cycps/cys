@@ -15,7 +15,7 @@ struct MCoreUnit
   MCoreUnit(string name, unsigned long control_tag, string target)
     : name{name},
       c{name+".c", 1.5, 200, 0.5, 2500},
-      a{name+".a", c.i, 5, 0.3, control_tag},
+      a{name+".a", c.i, {0, 5}, {0, 0.3}, control_tag},
       s{name+".s", c.flux, 1e6_ul, control_tag, target}
   {}
 };

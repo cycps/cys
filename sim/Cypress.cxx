@@ -69,6 +69,7 @@ void Object::label(std::vector<std::pair<Var, std::string>> labels)
 
 void Sim::step()
 {
+  //lock_guard<mutex> lk{mtx};
   sensorManager.step(t);
   for(Object *o : objects) o->resid();
 }
@@ -259,26 +260,44 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
       
       lg << log("running conditions check to help isolate") << endl;
       sim->conditionsCheck();
+      writeResults(results, i);
+      delete[] results;
 
       exit(1);
     }
     //sim->t = tret;
     sim->step();
+    
+    sim->slk.unlock();
     results[i*(sim->yx*2+1)] = t;
     memcpy(&results[i*(sim->yx*2+1)+1], sim->y, sizeof(realtype)*sim->yx);
     memcpy(&results[i*(sim->yx*2+1)+1+sim->yx], sim->dy, sizeof(realtype)*sim->yx);
     auto t1 = high_resolution_clock::now();
     size_t elapsed = duration_cast<microseconds>(t1 - t0).count();
 
-    if(elapsed < period)
-      usleep(period - elapsed);
-  }
 
+    if(elapsed < period)
+    {
+      usleep(period - elapsed);
+    }
+    sim->slk.lock();
+  }
+    
+  writeResults(results, i);
+
+  delete[] results;
+
+
+  return 0;
+}
+
+void SingleDirect::writeResults(realtype *results, size_t n)
+{
   std::ofstream r_out{"results.csv", std::ios_base::out};
   lg << log("Simulation completed, saving results") << endl;
   r_out << "t," << sim->header() << endl;
   //r_out << sim->datastring() << endl;
-  for(unsigned long j=0; j<i; ++j)
+  for(unsigned long j=0; j<n; ++j)
   {
     for(unsigned long k=0; k<(sim->yx*2+1)-1; ++k)
     {
@@ -287,8 +306,6 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
     r_out << results[j*(sim->yx*2+1)-1];
     r_out << endl;
   }
-
-  return 0;
 }
 
 void SingleDirect::dumpState(ostream &out)

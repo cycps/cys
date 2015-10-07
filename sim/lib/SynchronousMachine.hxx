@@ -45,7 +45,7 @@ struct SynchronousMachine : public Object
     L_ffd,            //field self inductance armatisseur inductances
     L_fkd,            //field-amortisseur mutual inductance
     L_kkq, L_kkd,     //amortisseur self inductances
-    H{10.47};           //rotor moment of inertia
+    H{0.7};           //rotor moment of inertia
 
   SynchronousMachine(string name, 
       realtype R_fd, realtype R_kd, realtype R_kq,
@@ -205,8 +205,8 @@ struct SynchronousMachine : public Object
     );
 
     //rotor motion
-    r(22) = d(theta) - (
-      t_m - t_e - std::pow(d(theta),2)*H
+    r(22) = d(w) - (
+      t_m - t_e - std::pow(w,2)*H
     );
 
     r(23) = w - d(theta);

@@ -15,7 +15,7 @@ struct RotorHouse
   RotorHouse(string name, unsigned long control_tag, string target)
     : name{name},
       r{name+".r", 47},
-      a{name+".a", r.tau, 10, 0.5, control_tag},
+      a{name+".a", r.tau, {0, 10}, {0, 0.5}, control_tag},
       s{name+".s", r.w, 120, control_tag, target}
   { }
 };

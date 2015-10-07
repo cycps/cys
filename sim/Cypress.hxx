@@ -101,6 +101,7 @@ struct SingleDirect
   void initState();
   void initIda(realtype begin);
   void dumpState(std::ostream &out);
+  void writeResults(realtype*, size_t);
 
   int run(realtype begin, realtype end, realtype step);
 };
@@ -110,6 +111,8 @@ struct Sim
   realtype *y{nullptr}, *dy{nullptr}, *r{nullptr}, t;
   unsigned long yx{0}, rx{0};
   std::vector<std::string> labels;
+  std::mutex mtx;
+  std::unique_lock<std::mutex> slk{mtx, std::try_to_lock};
   
   std::ofstream 
     lg{"sim.log", std::ios_base::out | std::ios_base::app};
