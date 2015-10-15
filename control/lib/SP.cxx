@@ -62,6 +62,14 @@ struct SP : public Controller
     double y = input_frame[in_idx];
     double u = Kp*(Rp - y);
     tx(u);
+    /*
+    if(std::abs(Rp-y) < 5) 
+      std::cout << "." << std::flush;
+    else if (u < 1)
+      std::cout << "-" << std::flush;
+    else
+      std::cout << "+" << std::flush;
+      */
     k_lg << ts() << "y = " << y << std::endl;
     k_lg << ts() << "u = " << u << std::endl;
   }

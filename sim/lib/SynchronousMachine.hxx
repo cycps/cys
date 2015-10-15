@@ -18,22 +18,22 @@ struct SynchronousMachine : public Object
 {
   // Variables: (27) +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Var
-    f_a, f_b, f_c,        //phase flux linkages
-    f_fd, f_kd, f_kq,     //rotor flux linkage
-    e_a, e_b, e_c,        //stator phase to neutral voltages
+/**/f_a, f_b, f_c,        //phase flux linkages
+/**/f_fd, f_kd, f_kq,     //rotor flux linkage
+/**/e_a, e_b, e_c,        //stator phase to neutral voltages
     i_a, i_b, i_c,        //stator phase currents
-    i_fd, i_kd, i_kq,     //field and amortisseur circuit currents
-    l_aa, l_bb, l_cc,     //self inductances of stator windings
-    l_ab, l_bc, l_ca,     //mutual inductances of stator windings
-    l_afd, l_akd, l_akq,  //mutual inductances between stator and rotor windings
-    theta,                //rotor position relative to the a-phase axis
-    w,                    //rotor angular velocity
-    t_e;                  //electrical and mechanical torque on the rotor
+/**/i_fd, i_kd, i_kq,     //field and amortisseur circuit currents
+/**/l_aa, l_bb, l_cc,     //self inductances of stator windings
+/**/l_ab, l_bc, l_ca,     //mutual inductances of stator windings
+/**/l_afd, l_akd, l_akq,  //mutual inductances between stator and rotor windings
+/**/theta,                //rotor position relative to the a-phase axis
+/**/w,                    //rotor angular velocity
+/**/t_e;                  //electrical torque on the rotor
 
   // Controlled Variables: (2) +++++++++++++++++++++++++++++++++++++++++++++++++
   Var
     e_fd,                 //field voltage
-    t_m;                  //mechanical torque
+    t_m;                  //mechanical torque on the rotor
 
   // Constants +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   const realtype
@@ -45,7 +45,7 @@ struct SynchronousMachine : public Object
     L_ffd,            //field self inductance armatisseur inductances
     L_fkd,            //field-amortisseur mutual inductance
     L_kkq, L_kkd,     //amortisseur self inductances
-    H{0.7};           //rotor moment of inertia
+    J{27e3};          //rotor moment of inertia
 
   SynchronousMachine(string name, 
       realtype R_fd, realtype R_kd, realtype R_kq,
@@ -72,6 +72,9 @@ struct SynchronousMachine : public Object
   //initialize them
   void init() override
   {
+    //e_fd = 1;
+    //i_fd = 0.01/R_fd;
+
     //Phase self inductances
     l_aa = L_aa0 + L_aa2*cos(2*theta);
     l_bb = L_aa0 + L_aa2*cos(2*(theta - 2*PI/3));
@@ -85,6 +88,10 @@ struct SynchronousMachine : public Object
     l_afd = L_afd*cos(theta);
     l_akd = L_akd*cos(theta);
     l_akq = -L_akq*sin(theta);
+
+    //starting @ steady state rotor velocity
+    w = 376.99111843077515;
+    d(theta) = 376.99111843077515;
   }
 
   void resid() override
@@ -201,32 +208,35 @@ struct SynchronousMachine : public Object
 
     //electrical torque
     r(21) = t_e - (
-        f_a*i_a + f_b*i_b + f_c*i_b
+        f_a*i_a + f_b*i_b + f_c*i_c
     );
 
     //rotor motion
-    r(22) = d(w) - (
-      t_m - t_e - std::pow(w,2)*H
+    r(22) = J*d(w) - (
+      t_m - t_e
     );
 
     r(23) = w - d(theta);
 
-    //check down below
-    //^^^^^^^^^^^^^^^^
-    
-    //field current
-    r(24) = e_fd - (
-        i_fd * R_fd
-    );
+    //stator phase currents ?? doing open circuit test for now
+    /*
+    realtype &t = Sim::get().t;
+    r(24) = i_a - 1000*sin(w*t);
+    r(25) = i_b - 1000*sin(w*t-2*PI/3);
+    r(26) = i_c - 1000*sin(w*t+2*PI/3);
+    */
 
-    //amortisseur currents
-    r(25) = d(f_kd) - (
-        i_kd * R_kd
-    );
-
-    r(26) = d(f_kq) - (
-        i_kq * R_kq
-    );
+    r(24) = -( (i_a - e_a/4.7) + (i_b - e_b/4.7) + (i_c - e_c/4.7) );
+    r(25) = -(e_a + e_b + e_c);
+    r(26) = -( (e_a - e_b) + (e_b - e_c) + (e_c - e_a) );
+   
+    std::cout << "++++++++++++++" << std::endl;
+    std::cout << "r(25): " << r(25) << std::endl;
+    std::cout << "r(26): " << r(26) << std::endl;
+    std::cout << "e_a, i_a: " << e_a << ", " << i_a << std::endl;
+    std::cout << "e_b, i_b: " << e_b << ", " << i_b << std::endl;
+    std::cout << "e_c, i_c: " << i_c << ", " << e_c << std::endl;
+    std::cout << "++++++++++++++" << std::endl;
 
   }
 

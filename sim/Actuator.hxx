@@ -20,11 +20,11 @@ struct Actuator : public Object
   Var v;
   Limits s_limit, //static limits of actuation
          d_limit; //dynamic limits of actuation
-  std::atomic<realtype> p{0};
   unsigned long id_tag;
+  std::atomic<realtype> p;
 
   Actuator(std::string name, Var v, Limits s_limit, Limits d_limit, 
-      unsigned long id_tag);
+      unsigned long id_tag, realtype initial=0);
 
   void actuate(realtype x);
   void resid() override;

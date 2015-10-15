@@ -29,6 +29,7 @@
 
 #include "Protocol.hxx"
 
+#define MXNCF 47
 
 namespace cys {
 
@@ -183,9 +184,9 @@ struct Var
 {
   unsigned long idx;
   inline operator realtype& ()       { return Sim::get().y[idx]; }
-  inline operator realtype  () const { return Sim::get().y[idx]; }
+  //inline operator realtype  () const { return Sim::get().y[idx]; }
   inline realtype& d()             { return Sim::get().dy[idx]; }
-  inline realtype  d()       const { return Sim::get().dy[idx]; }
+  //inline realtype  d()       const { return Sim::get().dy[idx]; }
   inline void operator ()(realtype &r) { Sim::get().y[idx] = r; }
   inline void d(realtype r) { Sim::get().dy[idx] = r; }
 
@@ -201,7 +202,7 @@ struct Var
 };
 
 inline realtype& d(Var &v) { return  v.d(); }
-inline realtype d(const Var &v)  { return  v.d(); }
+//inline realtype d(const Var &v)  { return  v.d(); }
 
 inline
 std::string log(std::string msg)

@@ -129,13 +129,15 @@ func updateNode(n *Node) {
 func initNode(n *Node) {
 	netname := XP.Name + "net"
 
-	out, err := exec.Command(
-		"docker", "service", "publish", n.Name+"."+netname).CombinedOutput()
-	if err != nil {
-		cmdErr(err, "Publishing service for "+n.Name+"failed", out)
-	}
+	/*
+		out, err := exec.Command(
+			"docker", "service", "publish", n.Name+"."+netname).CombinedOutput()
+		if err != nil {
+			cmdErr(err, "Publishing service for "+n.Name+"failed", out)
+		}
+	*/
 
-	out, err = exec.Command(
+	out, err := exec.Command(
 		"docker", "run", "-itd", "--hostname="+n.Name, "--name="+n.Name,
 		"--privileged", "-v", "/cys:/cys", "cycps/cys").CombinedOutput()
 	if err != nil {
@@ -143,9 +145,9 @@ func initNode(n *Node) {
 	}
 
 	out, err = exec.Command(
-		"docker", "service", "attach", n.Name, n.Name+"."+netname).CombinedOutput()
+		"docker", "network", "connect", netname, n.Name).CombinedOutput()
 	if err != nil {
-		cmdErr(err, "Attaching "+n.Name+" container to the network failed", out)
+		cmdErr(err, "Connecting "+n.Name+" container to the network failed", out)
 	}
 
 	out, err = exec.Command(
@@ -171,7 +173,7 @@ func up() {
 	netname := XP.Name + "net"
 
 	out, err := exec.Command(
-		"docker", "network", "create", "-d", "overlay", netname).CombinedOutput()
+		"docker", "network", "create" /*"-d", "overlay",*/, netname).CombinedOutput()
 	if err != nil {
 		cmdErr(err, "Creating docker network "+netname+" failed", out)
 	}
@@ -204,10 +206,10 @@ func shutdownNode(n *Node) {
 		cmdWarn(err, "Error removing node "+n.Name, out)
 	}
 
-	sname := n.Name + "." + XP.Name + "net"
-	out, err = exec.Command("docker", "service", "unpublish", sname).CombinedOutput()
+	netname := XP.Name + "net"
+	out, err = exec.Command("docker", "network", "disconnect", netname, n.Name).CombinedOutput()
 	if err != nil {
-		cmdWarn(err, "Error unpublishing service "+sname, out)
+		cmdWarn(err, "Error disconnecting  container "+n.Name+" from  "+netname, out)
 	}
 
 }

@@ -3,6 +3,6 @@ input:
 output:
     tag: 1004
     address: sim
-Kp: 470
+Kp: 10
 Rp: 376.99111843077515
-period: 16000
+period: 10000

@@ -227,8 +227,8 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
   lg << log("running simulation") << endl;
   lg << log("N=" + to_string(sim->yx)) << endl;
   initState();
-  initIda(begin);
   sim->initObjects();
+  initIda(begin);
   
   bool ok = sim->conditionsCheck();
   if(!ok)
@@ -243,7 +243,8 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
   size_t result_size{static_cast<size_t>(std::ceil((end-begin)/step))};
 
   realtype *results = new realtype[result_size*(sim->yx*2+1)];
-  size_t period = step / 1.0e-6;
+  size_t period = std::ceil(step / 1.0e-6);
+  //size_t period = step;
 
   lg << log("begin crunch") << endl;
 
@@ -260,12 +261,15 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
       
       lg << log("running conditions check to help isolate") << endl;
       sim->conditionsCheck();
-      writeResults(results, i);
+      results[i*(sim->yx*2+1)] = tret;
+      memcpy(&results[i*(sim->yx*2+1)+1], sim->y, sizeof(realtype)*sim->yx);
+      memcpy(&results[i*(sim->yx*2+1)+1+sim->yx], sim->dy, sizeof(realtype)*sim->yx);
+      writeResults(results, i+1);
       delete[] results;
 
       exit(1);
     }
-    //sim->t = tret;
+    sim->t = t;
     sim->step();
     
     sim->slk.unlock();
@@ -282,6 +286,8 @@ int SingleDirect::run(realtype begin, realtype end, realtype step)
     }
     sim->slk.lock();
   }
+
+  std::cout << "simulation finished writing results" << std::endl;
     
   writeResults(results, i);
 
@@ -397,6 +403,21 @@ void SingleDirect::initIda(realtype begin)
     exit(1);
   }
 
+  //IDACalcIC(mem, IDA_Y_INIT, 1e-3);
+  retval = IDASetMaxNumSteps(mem, 5000);
+  if(retval != IDA_SUCCESS)
+  {
+    lg << log("IDASetMaxNumSteps() failed") << endl;
+    exit(1);
+  }
+
+  retval = IDASetMaxStep(mem, 1e-6);
+  if(retval != IDA_SUCCESS)
+  {
+    lg << log("IDASetMaxStep() failed") << endl;
+    exit(1);
+  }
+
   lg << log("IDAInit ok") << endl;
 }
 
@@ -426,7 +447,7 @@ bool Object::conditionsCheck()
   for(ulong i=0; i<n; ++i)
   {
     realtype ri = r(i);
-    if(std::abs(ri) > 1e-6)
+    if(std::abs(ri) > 1e-9)
     {
       Sim::get().lg << name << ": r(" << i << ") = " << ri << endl;
       ok = false;

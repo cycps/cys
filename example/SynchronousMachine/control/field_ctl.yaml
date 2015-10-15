@@ -4,5 +4,5 @@ output:
     tag: 1002
     address: sim
 Kp: 1e-6
-Rp: 13500
-period: 1000
+Rp: 24000
+period: 100000

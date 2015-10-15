@@ -9,7 +9,7 @@ docker-machine create -d generic \
   --generic-ssh-port 54022 \
   --generic-ssh-user rgoodfel \
   --engine-install-url "https://experimental.docker.com" \
-  --engine-opt kv-store=consul:localhost:8500 \
+  --engine-opt cluster-store=consul://localhost:8500 \
   --engine-opt label=com.docker.network.driver.overlay.bind_interface=eth5 \
   marina
 
