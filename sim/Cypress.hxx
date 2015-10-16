@@ -95,7 +95,7 @@ struct SingleDirect
 
   N_Vector yv, dyv, rv;
 
-  realtype rtl = 1e-3, atl = 1e-3;
+  realtype rtl = RCONST(0.0), atl = RCONST(1.0e-8);
 
   void *mem{nullptr};
 
@@ -173,6 +173,7 @@ struct Object
   void label(Var &v, std::string);
   void label(std::vector<std::pair<Var, std::string>>);
   bool conditionsCheck();
+  void dumpState();
 
   /*
   private:

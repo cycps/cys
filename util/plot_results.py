@@ -23,7 +23,9 @@ df = pd.read_csv(
             "myhouse.m.e_c",
             "myhouse.m.i_a",
             "myhouse.m.i_b",
-            "myhouse.m.i_c"
+            "myhouse.m.i_c",
+            "myhouse.m.i_g",
+            "myhouse.m.e_n"
 #            "myhouse.m.l_aa",
 #            "myhouse.m.l_bb",
 #            "myhouse.m.l_cc",

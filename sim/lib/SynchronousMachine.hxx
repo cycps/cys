@@ -28,7 +28,9 @@ struct SynchronousMachine : public Object
 /**/l_afd, l_akd, l_akq,  //mutual inductances between stator and rotor windings
 /**/theta,                //rotor position relative to the a-phase axis
 /**/w,                    //rotor angular velocity
-/**/t_e;                  //electrical torque on the rotor
+/**/t_e,                  //electrical torque on the rotor
+    i_g,                  //load ground current
+    e_n;                  //neutral voltage
 
   // Controlled Variables: (2) +++++++++++++++++++++++++++++++++++++++++++++++++
   Var
@@ -56,7 +58,7 @@ struct SynchronousMachine : public Object
       realtype L_ffd, realtype L_fkd,
       realtype L_kkq, realtype L_kkd
   )
-  : Object(27, name),
+  : Object(29, name),
     R_fd{R_fd}, R_kd{R_kd}, R_kq{R_kq},
     R_a{R_a}, R_b{R_b}, R_c{R_c},
     L_aa0{L_aa0}, L_aa2{L_aa2},
@@ -219,17 +221,28 @@ struct SynchronousMachine : public Object
     r(23) = w - d(theta);
 
     //stator phase currents ?? doing open circuit test for now
-    /*
-    realtype &t = Sim::get().t;
-    r(24) = i_a - 1000*sin(w*t);
-    r(25) = i_b - 1000*sin(w*t-2*PI/3);
-    r(26) = i_c - 1000*sin(w*t+2*PI/3);
-    */
+    //realtype &t = Sim::get().t;
+    //r(24) = i_a - (e_a/4.7)*sin(w*t);
+    //r(25) = i_b - (e_b/4.7)*sin(w*t-2*PI/3);
+    //r(26) = i_c - (e_c/4.7)*sin(w*t+2*PI/3);
+    r(24) = i_a - e_a/4.7;
+    r(25) = i_b - e_b/4.7;
+    r(26) = i_c - e_c/4.7;
+    r(27) = i_g - (
+        i_a + i_b + i_c
+    );
+    r(28) = e_n - (
+        e_a + e_b + e_c
+    );
+    //r(27) = i_a - i_b - i_c;
 
-    r(24) = -( (i_a - e_a/4.7) + (i_b - e_b/4.7) + (i_c - e_c/4.7) );
-    r(25) = -(e_a + e_b + e_c);
-    r(26) = -( (e_a - e_b) + (e_b - e_c) + (e_c - e_a) );
+    //r(24) = (i_a - e_a/470) + (i_b - e_b/470) + (i_c - e_c/470);
+    //r(24) = i_a + i_b + i_c;
+    //r(25) = e_a + e_b + e_c;
+    //r(26) = (e_a - e_b) + (e_b - e_c) + (e_c - e_a);
+
    
+    /*
     std::cout << "++++++++++++++" << std::endl;
     std::cout << "r(25): " << r(25) << std::endl;
     std::cout << "r(26): " << r(26) << std::endl;
@@ -237,6 +250,15 @@ struct SynchronousMachine : public Object
     std::cout << "e_b, i_b: " << e_b << ", " << i_b << std::endl;
     std::cout << "e_c, i_c: " << i_c << ", " << e_c << std::endl;
     std::cout << "++++++++++++++" << std::endl;
+    */
+
+    /*
+    dumpState();
+    std::cout << "++ cvars ++++++" << std::endl;
+    std::cout << "e_fd = " << e_fd << ", " << e_fd.d() << std::endl;
+    std::cout << "t_m = " << t_m << ", " << t_m.d() << std::endl;
+    std::cout << "+++++++++++++++" << std::endl;
+    */
 
   }
 
@@ -273,7 +295,9 @@ struct SynchronousMachine : public Object
        {w,      "w"},
        {t_e,    "t_e"},
        {e_fd,   "e_fd"},
-       {t_m,    "t_m"}
+       {t_m,    "t_m"},
+       {i_g,    "i_g"},
+       {e_n,    "e_n"}
     });
   }
 

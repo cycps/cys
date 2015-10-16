@@ -1,4 +1,5 @@
 #include "SynchronousMachine.hxx"
+#include "SynchronousMachineDQ0.hxx"
 #include "Sensor.hxx"
 #include "Actuator.hxx"
 
@@ -20,7 +21,8 @@ struct TurbineHouse
     m{name+".m", 
       0.074, 0.047, 0.047, 
       0.002, 0.002, 0.002, 
-      3.3e-3, 1.1e-5, 0.2e-3, 0.15e-5,
+      3.3e-3, 1.1e-5, 
+      0.2e-3, 0.15e-5,
       0.2e-3, 0.17e-3, 0.01e-3,
       0.015e-3, 0.01e-3,
       0.025e-3, 0.02e-3
@@ -45,5 +47,5 @@ int main()
       1003, 1004, "w_ctl"
   };
 
-  return Sim::get().run(0, 10, 1e-3);
+  return Sim::get().run(0, 5, 1e-3);
 }
