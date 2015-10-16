@@ -181,13 +181,15 @@ void SensorManager::add(Sensor &s)
 
 void SensorManager::step(double t)
 {
+  if(Q.empty()) return;
+
   this->t = t; 
 
   //cout << "[" << sim->t << "]" << "[sm] t=" << t << endl;
   //if there are no sensors the line below results in sadness
   //cout << "[" << sim->t << "]" << "[sm] q=" << Q.top()->nxt << endl;
 
-  
+ 
   while(Q.top()->nxt <= (t-thresh))
   {
     Sensor *s = Q.top();

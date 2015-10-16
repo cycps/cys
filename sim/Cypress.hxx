@@ -33,7 +33,15 @@
 
 namespace cys {
 
-constexpr long double PI{3.14159265358979323846264338327950288};
+//lovely constants i am collecting
+constexpr realtype
+  PI{  3.14159265358979323846264338327950288 }, //pi
+  DEG{ 0.01745329251994329547437168059786927 }, //deg -> rad conv
+  U_0{ 0.00000125663706143591728850688726132 }; //perm of free space
+
+using std::string; //at some point c++ pride must give way to common sense
+
+realtype inline deg(realtype d) { return d*DEG; }
 
 struct Sim;
 struct Actuator;
